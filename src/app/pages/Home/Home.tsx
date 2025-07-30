@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 
 import { fetchNormalChats } from "@/lib/Database/ChatsDB";
-import { checkHistoryTitle } from "@/lib/Database/CheckHistory";
 import { v4 as uuidv4 } from "uuid";
 import Welcome from "@/app/compnents/welcome/welcome";
 import Prompt from "@/app/compnents/Prompt/Prompt";
@@ -13,11 +12,8 @@ export default function Home({ params }: { params: Promise<{ slug: string }> }) 
     const [input, setInput] = useState("");
     const [chatsArray, setChatsArray] = useState([]);
     const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
-    const [isSocketReady, setIsSocketReady] = useState(false);
-    const socketRef = useRef(null);
     const messagesEndRef = useRef(null);
     const chatRef = useRef<HTMLTextAreaElement | null>(null);
-    const [tempChatStore, setTempChatStore] = useState(null);
     const [mounted, setMounted] = useState(false);
 
 
@@ -44,50 +40,11 @@ export default function Home({ params }: { params: Promise<{ slug: string }> }) 
         setMounted(true);
     }, []);
 
-    // useEffect(() => {
-    //   // Only initialize socket on client side
-    //   if (!mounted) return;
-
-    //   const socket = initializeSocket();
-
-    //   // Check if socket is null (can happen on server side)
-    //   if (!socket) {
-    //     console.warn("Socket initialization failed");
-    //     return;
-    //   }
-
-    //   const handleConnect = () => {
-    //     console.log("Socket connected");
-    //     socketRef.current = socket;
-    //     setIsSocketReady(true);
-    //   };
-
-    //   const handleDisconnect = () => {
-    //     console.log("Socket disconnected");
-    //     setIsSocketReady(false);
-    //   };
-
-    //   if (socket.connected) {
-    //     socketRef.current = socket;
-    //     setIsSocketReady(true);
-    //   }
-
-    //   socket.on("connect", handleConnect);
-    //   socket.on("disconnect", handleDisconnect);
-
-    //   return () => {
-    //     socket.off("connect", handleConnect);
-    //     socket.off("disconnect", handleDisconnect);
-    //   };
-    // }, [mounted]);
-
     useEffect(() => {
         // Only fetch data on client side
         if (!mounted) return;
 
         const fetchData = async () => {
-            const history = await checkHistoryTitle();
-
             if (slug) {
                 const data = await fetchNormalChats(slug);
                 setChatsArray(data || []);
@@ -107,53 +64,6 @@ export default function Home({ params }: { params: Promise<{ slug: string }> }) 
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatsArray, isWaitingForResponse]);
 
-    useEffect(() => {
-        // Only add socket listeners on client side
-        if (!mounted) return;
-
-        const handleChatResponse = async (data: any) => {
-            setTempChatStore((prev) => {
-                let newMessage;
-                if (data.type === "segment") {
-                    // contains thinking
-
-                    if (data.segment === "thought" && data.segmentStartTime != null) {
-                        // runs while start the thinkingc
-                        newMessage = `<thinking> + ${data.text}`
-                    } else if (data.segment === "thought" && data.segmentStartTime != null) {
-                        // runs while ending the thinking
-                        newMessage = data.text
-
-                    } else {
-                        // middle of thinking content
-                        newMessage = `${data.text}</thinking>`
-                    }
-
-                } else {
-                    // this is compelte
-                    newMessage = data.text
-                }
-
-                return [...prev, newMessage]
-            });
-
-            // const modelMessage = {
-            //   id: Date.now(),
-            //   role: "model",
-            //   message: data.message.content || data.code || "No response",
-            // };
-
-            // if (slug) {
-            //   await saveNormalChats(slug, 1111, modelMessage);
-            //   const updatedChats = await fetchNormalChats(slug, 1111);
-            //   setChatsArray(updatedChats || []);
-            // }
-
-            setIsWaitingForResponse(false);
-        };
-
-        // ListenToEvent("chat_response", handleChatResponse);
-    }, [slug, mounted]);
 
     // Move setChatSlug logic to the main component
     const setChatSlug = async () => {
@@ -205,7 +115,7 @@ export default function Home({ params }: { params: Promise<{ slug: string }> }) 
                 {/* Chat Section */}
                 <div className="flex flex-col h-full w-full rounded-md max-w-full">
 
-                    <Welcome />
+                    <Welcome redirect={true} />
 
                     {/* Input Section */}
                     <div className="px-8 md:px-24 xl:px-32">
@@ -216,7 +126,6 @@ export default function Home({ params }: { params: Promise<{ slug: string }> }) 
                             handleKeyDown={handleKeyDown}
                             onSubmit={setChatSlug}
                             isWaitingForResponse={isWaitingForResponse}
-                            isSocketReady={isSocketReady}
                         />
                     </div>
                 </div>

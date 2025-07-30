@@ -23,6 +23,7 @@ import { DownloadSingleFile } from '@/lib/exports/Download';
 import { checkHistory } from '@/lib/Database/CheckHistory';
 
 import Prompt from '@/app/compnents/Prompt/Prompt';
+import Welcome from '@/app/compnents/welcome/welcome';
 
 const MemoizedUserMarkdown = memo(UserMarkdown);
 const MemoizedModelMarkdown = memo(ModelMarkdown);
@@ -35,13 +36,7 @@ export default function Render_Function() {
 
 
     return (
-        <ResizablePanelGroup direction="horizontal" className="bg-muted/40 w-full border rounded-xl overflow-hidden ">
-            <ResizablePanel defaultSize={30} minSize={25} maxSize={40} className="bg-muted/40 px-2 overflow-auto w-1/4">
-                <ChatBox Category={Category} />
-            </ResizablePanel>
-
-            <ResizableHandle />
-
+        <ResizablePanelGroup direction="horizontal" className="bg-muted/40 w-full overflow-hidden ">
             {/* Sidebar */}
             <ResizablePanel defaultSize={20} minSize={10} maxSize={20} className="rounded-xl px-2 overflow-auto">
                 <div style={{ maxHeight: 'calc(94vh - 0px)' }} className="designed-scroll-bar w-full flex flex-col justify-end overflow-auto h-full">
@@ -56,13 +51,19 @@ export default function Render_Function() {
             <ResizableHandle />
 
             {/* Code Editor */}
-
             <ResizablePanel onContextMenu={(e) => e.preventDefault()} style={{ maxHeight: 'calc(94vh - 0px)' }} className="designed-scroll-bar h-full flex flex-col w-full overflow-y-auto bg-muted/50">
 
                 {/* Code Editor */}
                 <CodeEditorWorkspace code={currentViewCode?.code || ""} />
 
             </ResizablePanel>
+
+            <ResizableHandle />
+
+            <ResizablePanel defaultSize={30} minSize={25} maxSize={40} className="bg-muted/40 px-2 overflow-auto w-1/4">
+                <ChatBox Category={Category} />
+            </ResizablePanel>
+
         </ResizablePanelGroup >
     );
 }
@@ -173,11 +174,88 @@ function CodeEditorWorkspace({ code }) {
 }
 
 
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { uuidv4 } from 'zod';
+
 const ChatBox = () => {
     const dispatch = useDispatch();
     const { slug } = useSelector(state => state.workflow);
     const chatRef = useRef(null);
     const [chatsArray, setChatsArray] = useState(null);
+
+    const [input, setInput] = useState("");
+    const messagesEndRef = useRef(null);
+    const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+
+    const [modelInitStatus, setModelStatus] = useState(false);
+
+    const handleSelect = async () => {
+        // @ts-ignore
+        try {
+            const connectionResponse = await window.electronAPI.openModelFile();
+
+            console.log("connectionResponse : ", connectionResponse)
+            if (connectionResponse.status == 200) {
+                const id = uuidv4();
+
+                toast.success(connectionResponse.message, {
+                    description: "Now you can use the system as like a developer",
+                    duration: 5000
+                });
+
+                setModelStatus(true);
+
+                window.electronAPI.onChatID({ chatId: id, enableDeveloperMode: true })
+            } else {
+                setModelStatus(false);
+                toast.error(connectionResponse.message || "Failed to open model file.");
+            }
+        } catch (error) {
+            console.error("Error selecting model file:", error);
+            toast.error("An unexpected error occurred while selecting the model file.");
+        }
+    };
+
+    const handleKeyDown = () => {
+        setChatSlug();
+        // if (e.key === "Enter" && !e.shiftKey) {
+        //   e.preventDefault();
+        //   if (!isWaitingForResponse && input.trim()) {
+        //   }
+        // }
+    };
+
+    const setChatSlug = async () => {
+        // if (!input.trim() || !isSocketReady) return;
+
+        // if (!slug) {
+        //   const id = uuidv4();
+        //   router.push("/c/" + id);
+        //   await createDatabase(id, 1111);
+        //   return;
+        // }
+
+        // const userMsg = {
+        //   id: Date.now(),
+        //   role: "user",
+        //   message: input.trim(),
+        // };
+
+        // await saveNormalChats(slug, 1111, userMsg);
+        // const updatedChats = await fetchNormalChats(slug, 1111);
+        // setChatsArray(updatedChats || []);
+        // setInput("");
+        // setIsWaitingForResponse(true);
+
+        // // sending prompt to main.js /electron/main.js
+        // window.electronAPI.setPrompt("Hello");
+        // addSocketListener("chats", input.trim());
+    };
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [chatsArray, isWaitingForResponse]);
 
     useEffect(() => {
 
@@ -189,23 +267,14 @@ const ChatBox = () => {
         })();
     }, [slug])
 
-    // listenToCodeGenerationEvent("refactor_response", async (data) => {
-    //     const messageObj = {
-    //         message: data.message,
-    //         role: "model",
-    //         path: data.path,
-    //         timeStamp: new Date().toISOString(),
-    //     }
-    //     // console.log("response data : ", messageObj, data);
 
-    //     const user_id = 1123;
-    //     const saveMsg = await saveChats(slug, user_id, messageObj);
-    //     if (saveMsg === 1) {
-    //         // addSocketListener("refactor_codebase", messageObj);
-    //         const Chats_Data = await fetchChats(slug, user_id);
-    //         setChatsArray(Chats_Data);
-    //     }
-    // })
+    useEffect(() => {
+        // Only add socket listeners on client side
+        // if (!mounted) return;
+
+
+        // ListenToEvent("chat_response", handleChatResponse);
+    }, [slug]);
 
     const SendPrompt = async () => {
 
@@ -228,7 +297,7 @@ const ChatBox = () => {
     }
 
     return (
-        <div style={{ maxHeight: 'calc(93.7vh - 0px)' }} className="designed-scroll-bar w-full flex flex-col overflow-auto h-full">
+        <div className="designed-scroll-bar w-full flex flex-col overflow-auto h-full">
             <div className="designed-scroll-bar flex flex-col h-full  justify-end flex-1 overflow-y-auto">
 
 
@@ -238,49 +307,33 @@ const ChatBox = () => {
 
             </div>
 
+            {!modelInitStatus && <div className={` flex flex-col h-full w-full rounded-md max-w-full"}`}>
+                <div className="px-8 md:px-4 xl:px-8 flex flex-col gap-4 justify-center h-full items-center">
+                    <div className=' text-4xl font-bold text-center'>
+                        File’s yours. <br /> What do you want to do next?
+                    </div>
 
-            {/* <div className="px-0 pt-3">
-                <Card className="max-w-2xl bg-muted mx-auto">
-                    <CardContent className="p-3">
-                        <Textarea
-                            // value={chat?.status === "pending" ? "" : chat?.prompt}
-                            onChange={(el) => chatRef.current = el.target.value}
-                            placeholder="Ask me anything..."
-                            className="designed-scroll-bar  min-h-8 resize-none border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                        />
-                    </CardContent>
+                    <div className='flex gap-2'>
+                        <Button className="w-fit" onClick={handleSelect}>Choose Model</Button>
 
-                    <CardFooter className="flex justify-end gap-2 p-3 pt-0">
-                        <TooltipProvider className="w-fit">
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <span>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            disabled
-                                            className="opacity-50 cursor-not-allowed pointer-events-none"
-                                        >
-                                            <Figma className="h-4 w-4 mr-2" />
-                                            Design
-                                        </Button>
-                                    </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>In development — available in an upcoming release.</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                        <Link to="/search">
+                            <Button variant="outline">Download LLM</Button>
+                        </Link>
+                    </div>
 
-                        <Button size="sm" onClick={() => SendPrompt()}>
-                            <CircleArrowRight className="h-4 w-4 mr-2" />
-                            Send
-                        </Button>
-                    </CardFooter>
-                </Card>
-            </div> */}
+                </div>
+            </div >}
 
-            <Prompt />
+
+            <Prompt
+                chatRef={chatRef}
+                input={input}
+                setInput={setInput}
+                handleKeyDown={handleKeyDown}
+                onSubmit={setChatSlug}
+                isWaitingForResponse={isWaitingForResponse}
+            // isSocketReady={isSocketReady}
+            />
         </div>
     )
 }
@@ -361,24 +414,3 @@ const MemoizedMarkdown = ({ ChatsArray }) => {
         </div>
     );
 };
-
-
-const SkeletonComponent = () => {
-    <Card className="border-0 flex gap-2 p-2">
-        <div className="max-h-6 max-w-6 rounded-md">
-            <Avatar title="user" className="max-h-6 max-w-6">
-                <Skeleton className="w-full h-full" />
-            </Avatar>
-        </div>
-        <div className="flex flex-col gap-2 w-full">
-            <Skeleton className="h-4 w-3/4 rounded" />
-            <Skeleton className="h-4 w-full rounded" />
-            <Skeleton className="h-4 w-5/6 rounded" />
-            <Skeleton className="h-4 w-2/3 rounded" />
-
-            {/* Optional code block skeleton */}
-            <Skeleton className="h-24 w-full rounded-md mt-2" />
-        </div>
-    </Card>
-}
-

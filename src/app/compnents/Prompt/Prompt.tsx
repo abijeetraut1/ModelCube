@@ -14,7 +14,6 @@ interface PromptProps {
     handleKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
     onSubmit: () => void;
     isWaitingForResponse: boolean;
-    isSocketReady: boolean;
 }
 
 export default function Prompt({
@@ -24,7 +23,6 @@ export default function Prompt({
     handleKeyDown,
     onSubmit,
     isWaitingForResponse,
-    isSocketReady
 }: PromptProps) {
 
     return (

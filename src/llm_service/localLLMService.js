@@ -70,7 +70,7 @@ async function initializeLLM(path) {
   }
 }
 
-async function createLLMSession(sessionId) {
+async function createLLMSession(sessionId, enableDeveloperMode) {
   const { LlamaChatSession } = await import("node-llama-cpp");
   try {
     if (sessions.has(sessionId)) {
@@ -80,7 +80,17 @@ async function createLLMSession(sessionId) {
 
     const startTime = Date.now();
     const context = await model.createContext({ ...defaultModelOptions });
-    const session = new LlamaChatSession({ contextSequence: context.getSequence() });
+
+    let sysPrompt = null;
+
+    if (enableDeveloperMode) {
+      sysPrompt = "you are an software engineer, you can write the every code every message in the form of html code if user normal text then user: hi, model: <p> hello whatsup </p>";
+    }
+
+    const session = new LlamaChatSession({
+      contextSequence: context.getSequence(),
+      systemPrompt: sysPrompt,
+    });
 
     const sessionData = {
       session,

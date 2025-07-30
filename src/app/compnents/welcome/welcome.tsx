@@ -13,8 +13,11 @@ type ErrorState = {
     message: string | null;
 };
 
+interface welcome {
+    redirect: boolean
+}
 
-export default function Welcome() {
+export default function Welcome({ redirect }: welcome) {
     const [modelPath, setModelPath] = useState<string | null>();
     const [error, setError] = useState<ErrorState>({ status: null, message: null });
     const navigate = useNavigate();
@@ -28,13 +31,16 @@ export default function Welcome() {
             console.log("connectionResponse : ", connectionResponse)
             if (connectionResponse.status == 200) {
                 const id = uuidv4();
-                navigate("/c/" + id);
+
+                if (redirect) {
+                    navigate("/c/" + id);
+                }
 
                 toast.success(connectionResponse.message, {
                     duration: 5000
                 });
 
-                window.electronAPI.onChatID({ chatId: id })
+                window.electronAPI.onChatID({ chatId: id, enableDeveloperMode: false })
             } else {
                 toast.error(connectionResponse.message || "Failed to open model file.");
             }

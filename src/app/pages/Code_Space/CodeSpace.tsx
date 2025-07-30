@@ -214,7 +214,7 @@ export default function Playground() {
     <SidebarProvider className="h-full">
       {/*  <AppSidebar codes={refactorResponse} SendPrompt={Refactor_Initator_Prompt} isDatabaseRequired={true} isFolderStructureRequire={true} /> */}
 
-      <SidebarInset className="px-4 bg-muted/40 p-1">
+      <SidebarInset className=" bg-muted/40">
 
         {/* <Header /> */}
 

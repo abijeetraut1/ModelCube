@@ -91,8 +91,10 @@ ipcMain.once("set-chat-id", async (event, message) => {
   if (!message.chatId) return;
 
   chatID = message.chatId;
-  console.log(chatID);
-  const session = await createLLMSession(chatID);
+  const enableDeveloperMode = message.enableDeveloperMode;
+
+  console.log(message);
+  const session = await createLLMSession(chatID, enableDeveloperMode);
 });
 
 ipcMain.on("on-trigger-page-load", (event, msg) => {
