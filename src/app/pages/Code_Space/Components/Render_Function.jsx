@@ -37,7 +37,6 @@ export default function Render_Function() {
     return (
         <ResizablePanelGroup direction="horizontal" className="bg-muted/40 w-full border rounded-xl overflow-hidden ">
             <ResizablePanel defaultSize={30} minSize={25} maxSize={40} className="bg-muted/40 px-2 overflow-auto w-1/4">
-
                 <ChatBox Category={Category} />
             </ResizablePanel>
 
@@ -229,7 +228,7 @@ const ChatBox = () => {
     }
 
     return (
-        <div style={{ maxHeight: 'calc(92vh - 0px)' }} className="designed-scroll-bar w-full flex flex-col overflow-auto h-full">
+        <div style={{ maxHeight: 'calc(93.7vh - 0px)' }} className="designed-scroll-bar w-full flex flex-col overflow-auto h-full">
             <div className="designed-scroll-bar flex flex-col h-full  justify-end flex-1 overflow-y-auto">
 
 

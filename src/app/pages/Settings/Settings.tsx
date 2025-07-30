@@ -122,7 +122,7 @@ export default function Settings() {
                     </div>
 
                     {/* Model */}
-                    <Card className="w-full  opacity-50 select-none cursor-not-allowed" aria-disabled >
+                    <Card className="w-full opacity-50 select-none cursor-not-allowed" aria-disabled >
 
                         <CardHeader>
                             <CardTitle className="flex items-center space-x-2">
@@ -176,7 +176,7 @@ export default function Settings() {
                     </Card>
 
                     {/* System Prompt Instructions */}
-                    <Card className="w-full">
+                    <Card className=" w-full">
                         <CardHeader>
                             <CardTitle className="flex items-center space-x-2">
                                 <BrainCircuit className="w-5 h-5" />

@@ -10,6 +10,7 @@ import { setSlug } from "@/lib/Redux/Reducers/SystemWorkflow";
 import { RequirementIdentifier } from "./Functions/RequirementIdentifier";
 import { addChats } from "@/lib/Database/CodesDB";
 import { checkHistory } from "@/lib/Database/CheckHistory";
+import { toast } from "sonner";
 
 document.title = "Generate";
 
@@ -33,6 +34,15 @@ export default function Playground() {
 
   const { Folders, Category, Database_Tables, Description, Backend_Framework, Database, ORM } = useSelector(state => state.prompt);
   const { FoldersPath, GeneratedFolders } = useSelector(state => state.response);
+
+  useEffect(() => {
+
+    toast.error("On Testing Phase", {
+      description: "we are testing this module"
+    })
+
+  }, []);
+
 
   useEffect(() => {
     setSlug(dispatch(setSlug(slug)));
@@ -204,9 +214,9 @@ export default function Playground() {
     <SidebarProvider className="h-full">
       {/*  <AppSidebar codes={refactorResponse} SendPrompt={Refactor_Initator_Prompt} isDatabaseRequired={true} isFolderStructureRequire={true} /> */}
 
-      <SidebarInset className="px-4 bg-muted/40">
+      <SidebarInset className="px-4 bg-muted/40 p-1">
 
-        <Header />
+        {/* <Header /> */}
 
         <div className="flex flex-1 flex-row gap-4">
           <Render_Function Files={ResponseCodes} />
