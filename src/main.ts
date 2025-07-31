@@ -1,7 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import path from 'path';
 import started from 'electron-squirrel-startup';
-import fs from "fs";
+import DownloadManager from "electron-download-manager"
 
 import {
   initializeLLM,
@@ -132,6 +132,42 @@ ipcMain.handle('open-file-dialog', async () => {
     return res;
   }
 });
+
+
+
+// download 
+
+DownloadManager.register({
+  downloadFolder: app.getPath("downloads")
+});
+
+let currentProgress = null;
+let fileName = null;
+
+ipcMain.on("get-download-url", (event, file) => {
+  DownloadManager.download({
+    url: file.downloadUrl,
+    onProgress: (progress) => {
+      currentProgress = progress; // ✅ Save latest progress
+      fileName = file.fileName;
+      BrowserWindow.getAllWindows().forEach(win =>
+        win.webContents.send("download-progress", progress)
+      );
+    }
+  }, (error, info) => {
+    currentProgress = null; // ✅ Reset after completionfileName
+    fileName = null; // ✅ Reset after completionfileName
+  });
+});
+
+// Return current progress when requested
+ipcMain.on("get-current-download", (event) => {
+  event.sender.send("current-download", { fileName, currentProgress });
+});
+
+
+
+
 
 // Create the app window when ready
 app.on('ready', createWindow);

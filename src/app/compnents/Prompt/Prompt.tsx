@@ -72,7 +72,7 @@ export default function Prompt({
                                 </div>
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="!max-w-2xl !w-full">
+                        <DialogContent className="bg-[#1c1c1c] !max-w-2xl !w-full">
                             <DialogHeader>
                                 <DialogTitle>Sampling Parameters</DialogTitle>
                                 <DialogDescription className="py-2 space-y-6">
@@ -82,8 +82,6 @@ export default function Prompt({
                         </DialogContent>
                     </Dialog>
                 </div>
-
-
 
                 <div className="flex gap-2">
                     <Button

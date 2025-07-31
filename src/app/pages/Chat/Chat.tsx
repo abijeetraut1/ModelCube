@@ -111,7 +111,6 @@ export default function Chat({ params }: { params: Promise<{ slug: string }> }) 
 
       // wordCount.current += 1;
     };
-
     const handleChatEnd = async (data: any) => {
       const remainingChunks = responseChunks.current;
       const currentState = tempChatStoreRef.current;
@@ -150,9 +149,7 @@ export default function Chat({ params }: { params: Promise<{ slug: string }> }) 
     }
 
     window.electronAPI.onChat(handleChatResponse)
-
     window.electronAPI.onChatEnd(handleChatEnd);
-
 
     return () => {
       window.electronAPI.removeChatListener(handleChatResponse);
@@ -192,7 +189,6 @@ export default function Chat({ params }: { params: Promise<{ slug: string }> }) 
     // addSocketListener("chats", input.trim());
 
     window.electronAPI.setPrompt(input);
-
   };
 
   const adjustHeight = () => {

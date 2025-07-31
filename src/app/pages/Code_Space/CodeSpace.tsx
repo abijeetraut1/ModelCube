@@ -37,9 +37,9 @@ export default function Playground() {
 
   useEffect(() => {
 
-    toast.error("On Testing Phase", {
-      description: "we are testing this module"
-    })
+    toast.error("Local init failed", {
+      description: "Too resource-intensive; switching online."
+    });
 
   }, []);
 
@@ -124,8 +124,6 @@ export default function Playground() {
         console.error("Error during code generation:", err);
       }
     })();
-
-
   }, [codeGenerationActivate, generationIndex, FoldersPath]);
 
   useEffect(() => {
@@ -174,8 +172,6 @@ export default function Playground() {
 
   }, [codeGenerationActivate]);
 
-
-
   useEffect(() => {
     if (socketRef.current && isSocketReady) {
       const prompt = {
@@ -194,8 +190,6 @@ export default function Playground() {
       socketRef.current.emit("system_initialization", { prompt });
     }
   }, [isSocketReady]);
-
-
 
   useEffect(() => {
     if (Array.isArray(ResponseCodes)) {

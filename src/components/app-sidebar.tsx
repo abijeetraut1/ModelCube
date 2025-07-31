@@ -40,7 +40,7 @@ const data = {
       title: "Histroy",
       url: "/history",
       icon: History as Icon,
-      complete: false
+      complete: true
     },
     {
       title: "Search Model",

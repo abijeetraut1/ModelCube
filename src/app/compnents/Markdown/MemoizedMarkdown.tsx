@@ -14,6 +14,7 @@ import {
 
 
 import { ChatModelMarkdown, ChatUserMarkdown } from "./markdown/Markdown";
+import { useLocation } from "react-router-dom";
 
 interface MemoizedMarkdownProps {
     currentResponse: string;
@@ -24,11 +25,13 @@ interface MemoizedMarkdownProps {
 const MemoizedUserMarkdown = memo(ChatUserMarkdown);
 const MemoizedModelMarkdown = memo(ChatModelMarkdown);
 
-
 export const MemoizedMarkdown = memo(({ currentResponse, ChatsArray, isWaitingForResponse }: MemoizedMarkdownProps) => {
     const parentRef = useRef(null);
     const safeChatsArray = ChatsArray || [];
     const [onProcessingChat, setOnProcessingChat] = useState();
+    const location = useLocation();
+    const isCodeSpace = location.pathname.includes("/code-space");
+
 
     useEffect(() => {
         setOnProcessingChat(currentResponse);
@@ -124,7 +127,7 @@ export const MemoizedMarkdown = memo(({ currentResponse, ChatsArray, isWaitingFo
         >
             <div
                 ref={parentRef}
-                className="List designed-scroll-bar h-full w-full flex-1 px-2 md:px-4 xl:px-28"
+                className={`List designed-scroll-bar h-full w-full flex-1 ${isCodeSpace ? "" : "px-2 md:px-4 xl:px-28"}`}
                 style={{
                     overflowY: 'auto',
                     contain: 'strict',

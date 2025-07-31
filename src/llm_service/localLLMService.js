@@ -1,4 +1,10 @@
 import { defaultModelOptions } from "./settings.js";
+import fs from 'fs';
+import path from 'path';
+import { app } from "electron";
+
+const isDev = !app.isPackaged;
+
 
 let llama = null;
 let model = null;
@@ -10,6 +16,31 @@ let modelPath;
 
 const maxCacheSize = 3;
 const cacheTtl = 300000; // 5 minutes
+
+async function printModelInfo(path) {
+
+  const { Llama, LlamaModel } = await import("node-llama-cpp");
+
+  await Llama.init();
+
+  const model = new LlamaModel({
+    modelPath: path,
+  });
+
+  const meta = model.getMeta();
+
+  console.log("Model Metadata:");
+  console.log(meta);
+
+  if ('num_layer' in meta) {
+    console.log("✅ Number of Layers:", meta.num_layer);
+  } else {
+    console.log("⚠️ Could not find number of layers in metadata.");
+  }
+
+  model.free(); // clean up
+}
+
 
 async function initializeLLM(path) {
   const { getLlama } = await import("node-llama-cpp");
@@ -27,6 +58,9 @@ async function initializeLLM(path) {
 
     llama = await getLlama();
     console.log("GPU type:", llama.gpu);
+
+    const ModelInfo = await printModelInfo(path);
+    console.log(ModelInfo);
 
     const gpuLayersOptions = [0, 5, 10, 15, 20, 25, 30];
     let initialized = false;
@@ -72,6 +106,15 @@ async function initializeLLM(path) {
 
 async function createLLMSession(sessionId, enableDeveloperMode) {
   const { LlamaChatSession } = await import("node-llama-cpp");
+
+
+  const basePath = isDev
+    ? path.join(__dirname, '..', '..', 'assets', 'system_prompts') // dev
+    : path.join(app.getAppPath(), 'assets', 'system_prompts');     // prod
+  const filePath = path.join(basePath, 'system_prompt.txt');
+
+  const content = fs.readFileSync(filePath, 'utf-8');
+
   try {
     if (sessions.has(sessionId)) {
       console.log(`Session ${sessionId} already exists`);
@@ -84,12 +127,12 @@ async function createLLMSession(sessionId, enableDeveloperMode) {
     let sysPrompt = null;
 
     if (enableDeveloperMode) {
-      sysPrompt = "you are an software engineer, you can write the every code every message in the form of html code if user normal text then user: hi, model: <p> hello whatsup </p>";
+      sysPrompt = content
     }
 
     const session = new LlamaChatSession({
       contextSequence: context.getSequence(),
-      systemPrompt: sysPrompt,
+      systemPrompt: content,
     });
 
     const sessionData = {

@@ -15,6 +15,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Headers } from "@/app/compnents/Headers/Headers";
 import MODELS_DOWNLOAD_URL from "@/constant/Models";
 import { toast } from "sonner";
+import { useDownload } from "@/hooks/useDownload";
+import { electron } from "process";
 
 export default function Search() {
     const [models, setModels] = useState<string | null>(null);
@@ -68,42 +70,24 @@ export default function Search() {
     }
 
     const triggersDownload = async (file: string) => {
-        toast.error("System Error", {
-            description: "Please download manually using the link in your browser."
-        });
 
-        navigator.clipboard.writeText(file.downloadUrl)
-            .then(() => {
-                toast.success("Copied!", {
-                    description: "Link copied to clipboard."
-                });
-            }).catch(() => {
-                toast.error("Failed", {
-                    description: "Could not copy the link."
-                });
-            });
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        // if (window.electronAPI && window.electronAPI.startDownload) {
-        //     try {
-        //         console.log('Triggering download for:', file.downloadUrl, file.filename);
+        window.electronAPI.ipcRenderer.send("get-download-url", file);
 
-        //         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //         // @ts-ignore
-        //         const result = await window.electronAPI.startDownload(file.downloadUrl, file.filename);
+        // toast.error("System Error", {
+        //     description: "Please download manually using the link in your browser."
+        // });
 
-        //         if (result && result.success) {
-        //             console.log('Download request successful');
-        //         } else {
-        //             console.error('Download failed:', result?.error || 'Unknown error');
-        //         }
-        //     } catch (error) {
-        //         console.error('Error triggering download:', error);
-        //     }
-        // } else {
-        //     console.error('electronAPI or startDownload not available');
-        // }
+        // navigator.clipboard.writeText(file.downloadUrl)
+        //     .then(() => {
+        //         toast.success("Copied!", {
+        //             description: "Link copied to clipboard."
+        //         });
+        //     }).catch(() => {
+        //         toast.error("Failed", {
+        //             description: "Could not copy the link."
+        //         });
+        //     });
     };
 
 
@@ -219,7 +203,13 @@ export default function Search() {
                                                                         </div>
                                                                     </div>
                                                                     {file.downloadUrl ? (
-                                                                        <Button className="cursor-pointer" onClick={() => triggersDownload(file)}>
+                                                                        <Button
+                                                                            className="cursor-pointer"
+                                                                            onClick={() => triggersDownload({
+                                                                                downloadUrl: file.downloadUrl,
+                                                                                filename: file.filename
+                                                                            })}
+                                                                        >
                                                                             <Download className="w-4 h-4" />
                                                                         </Button>
                                                                     ) : (

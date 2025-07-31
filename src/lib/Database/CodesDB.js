@@ -138,3 +138,27 @@ export const updateCodes = async (conversation_id, path, version, updateCode) =>
         codes: updatedArray,
     });
 };
+
+
+export const deleteConversationById = async (conversation_id) => {
+    try {
+        const match = await IndexedDB.conversations
+            .where("conversation_id")
+            .equals(conversation_id)
+            .first();
+
+        console.log(match);
+
+        if (match) {
+            await IndexedDB.conversations.delete(match.conversation_id);
+            console.log(`Conversation ${conversation_id} deleted`);
+            return true;
+        } else {
+            console.warn(`Conversation ${conversation_id} not found`);
+            return false;
+        }
+    } catch (error) {
+        console.error("Failed to delete conversation:", error);
+        return false;
+    }
+};

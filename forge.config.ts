@@ -21,8 +21,16 @@ const config: ForgeConfig = {
     ],
     // Explicitly include native modules
     extraResource: [
-      "./node_modules/@node-llama-cpp"
+      "./node_modules/@node-llama-cpp",
+      // "./src/llm_service/system_prompts/system_prompt.txt"
+    ],
+    extraFiles: [
+      {
+        from: "assets/system_prompts", // ✅ this is your folder with 1044-line txt files
+        to: "assets/system_prompts",
+      }
     ]
+
   },
   rebuildConfig: {
     force: true,
