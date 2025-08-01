@@ -7,7 +7,8 @@ export const createDatabase = async (conversation_id) => {
             conversation_id: conversation_id, // slug
             codes: [],
             conversation: [],
-            chats: []
+            chats: [],
+            download: []
         });
     }
 }

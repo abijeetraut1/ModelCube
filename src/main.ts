@@ -144,19 +144,30 @@ DownloadManager.register({
 let currentProgress = null;
 let fileName = null;
 
-ipcMain.on("get-download-url", (event, file) => {
+ipcMain.on("get-download-url", (event, { filename, downloadUrl }) => {
+
+  // mainWindow.getAllWindows().forEach(win =>
+  //   win.webContents.send("download-started", {
+  //     type: "info",
+  //     message: `Downloading started: ${file.fileName}`
+  //   })
+  // );
+
   DownloadManager.download({
-    url: file.downloadUrl,
+    url: downloadUrl,
     onProgress: (progress) => {
       currentProgress = progress; // ✅ Save latest progress
-      fileName = file.fileName;
+      fileName = filename;
       BrowserWindow.getAllWindows().forEach(win =>
-        win.webContents.send("download-progress", progress)
+        win.webContents.send("download-progress", {
+          filename,
+          progress
+        })
       );
     }
   }, (error, info) => {
     currentProgress = null; // ✅ Reset after completionfileName
-    fileName = null; // ✅ Reset after completionfileName
+    filename = null; // ✅ Reset after completionfileName
   });
 });
 

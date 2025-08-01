@@ -17,6 +17,7 @@ import MODELS_DOWNLOAD_URL from "@/constant/Models";
 import { toast } from "sonner";
 import { useDownload } from "@/hooks/useDownload";
 import { electron } from "process";
+import { storeDownloadFile } from "@/lib/Database/Download";
 
 export default function Search() {
     const [models, setModels] = useState<string | null>(null);
@@ -69,10 +70,21 @@ export default function Search() {
         searchLLM(slug);
     }
 
-    const triggersDownload = async (file: string) => {
+    const triggersDownload = async ({ filename, downloadUrl }) => {
 
 
-        window.electronAPI.ipcRenderer.send("get-download-url", file);
+        window.electronAPI.ipcRenderer.send("get-download-url", {
+            filename, downloadUrl
+        });
+        console.log(filename, downloadUrl);
+
+        await storeDownloadFile({
+            fileName: filename,
+            url: downloadUrl,
+            progress: 0,
+            status: "downloading"
+        })
+
 
         // toast.error("System Error", {
         //     description: "Please download manually using the link in your browser."
