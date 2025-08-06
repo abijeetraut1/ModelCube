@@ -7,7 +7,7 @@ import {
   IconSettings,
   IconPrompt
 } from "@tabler/icons-react"
-import { Download, History, Search } from "lucide-react";
+import { Download, History, Search, Home, Image, ScanFace, ScanText } from "lucide-react";
 import { FileBox } from "lucide-react";
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -26,16 +26,45 @@ import { checkHistory } from "@/lib/Database/CheckHistory";
 import type { Icon } from "@/components/nav-secondary"
 
 const data = {
-  navMain: [
-    {
-      title: "use of socket in nodejs",
-      url: "#",
-      icon: IconPrompt,
-      complete: true
-
-    },
-  ],
+  // navMain: [
+  //   {
+  //     title: "Face Mesh",
+  //     url: "/face-Mesh",
+  //     icon: ScanFace as Icon,
+  //     complete: true
+  //   },
+  //   {
+  //     title: "Image Classifier",
+  //     url: "/image-classifier",
+  //     icon: Image as Icon,
+  //     complete: true
+  //   },
+  // ],
   navSecondary: [
+    // {
+    //   title: "Face Mesh",
+    //   url: "/face-Mesh",
+    //   icon: ScanFace as Icon,
+    //   complete: true
+    // },
+    // {
+    //   title: "Image Classifier",
+    //   url: "/image-classifier",
+    //   icon: Image as Icon,
+    //   complete: true
+    // },
+    {
+      title: "Text Classification",
+      url: "/ai",
+      icon: ScanText as Icon,
+      complete: true
+    },
+    {
+      title: "Home",
+      url: "/",
+      icon: Home as Icon,
+      complete: true
+    },
     {
       title: "Histroy",
       url: "/history",
@@ -88,15 +117,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link to="/">
-                <FileBox className="!size-5" />
-                <span className="text-base font-semibold">Local LLM.</span>
+                <span className="text-base font-semibold">ModelCube.</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {/* <NavMain items={history} /> */}
+        <NavMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
     </Sidebar>

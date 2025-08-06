@@ -40,7 +40,7 @@ export default function Welcome({ redirect }: welcome) {
                     duration: 5000
                 });
 
-                window.electronAPI.onChatID({ chatId: id, enableDeveloperMode: false })
+                window.electronAPI.onChatID({ chatId: id })
             } else {
                 toast.error(connectionResponse.message || "Failed to open model file.");
             }

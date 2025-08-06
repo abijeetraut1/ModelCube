@@ -158,7 +158,7 @@ const Downloads = ({ onGoingDownload }) => {
                             <div className="flex items-center gap-2">
                                 <p className="leading-7">{onGoingDownload.progress?.downloaded || 0}</p>
                                 <p className="leading-7">/</p>
-                                <p className="leading-7">{onGoingDownload.progress?.total || 0}%</p>
+                                <p className="leading-7">{onGoingDownload.progress?.total || 0}</p>
                                 {/* <p className="leading-7">({progress.status})</p> */}
                             </div>
                         </div>

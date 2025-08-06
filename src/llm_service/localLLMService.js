@@ -2,6 +2,7 @@ import { defaultModelOptions } from "./settings.js";
 import fs from 'fs';
 import path from 'path';
 import { app } from "electron";
+import os from "os";
 
 const isDev = !app.isPackaged;
 
@@ -56,33 +57,58 @@ async function initializeLLM(path) {
 
     console.log("Initializing Llama model with 4GB VRAM optimization...");
 
+    const isMac = os.platform() === "darwin";
     llama = await getLlama();
     console.log("GPU type:", llama.gpu);
 
-    const ModelInfo = await printModelInfo(path);
-    console.log(ModelInfo);
+    // const ModelInfo = await printModelInfo(path);
+    // console.log(ModelInfo);
 
-    const gpuLayersOptions = [0, 5, 10, 15, 20, 25, 30];
+    // const gpuLayersOptions = [0, 5, 10, 15, 20, 25, 30, 35, 40];
     let initialized = false;
     let lastError = null;
 
-    for (const layers of gpuLayersOptions) {
+    // for (const layers of gpuLayersOptions) {
+
+
+    if (isMac) {
       try {
-        console.log(`Attempting initialization with ${layers} GPU layers...`);
+        console.log(`Attempting initialization with CPU`);
         model = await llama.loadModel({
           modelPath: path,
           ...defaultModelOptions,
-          gpuLayers: layers,
-          nGpuLayers: layers
+          gpuLayers: 0,
+          nGpuLayers: 0
         });
         initialized = true;
-        console.log(`Successfully initialized with ${layers} GPU layers`);
-        break;
+        console.log("Successfully initialized with CPU");
+        // break;
       } catch (error) {
         lastError = error;
-        console.warn(`Failed with ${layers} GPU layers: ${error.message}`);
-        if (error.message.includes('VRAM')) continue;
+        console.warn(`Failed with CPU layers`);
+        // if (error.message.includes('VRAM')) continue;
         throw error;
+      }
+    } else {
+      const layers = isMac ? 20 : 0;
+      for (let i = 0; i <= layers; i++) {
+        try {
+          console.log(`Attempting initialization with ${i} GPU layers...`);
+          model = await llama.loadModel({
+            modelPath: path,
+            ...defaultModelOptions,
+            gpuLayers: i,
+            nGpuLayers: i
+          });
+          initialized = true;
+          console.log(`Successfully initialized with ${layers} GPU layers`);
+          // break;
+        } catch (error) {
+          lastError = error;
+          console.warn(`Failed with ${layers} GPU layers: ${error.message}`);
+          if (error.message.includes('VRAM')) continue;
+          throw error;
+        }
       }
     }
 
@@ -104,16 +130,11 @@ async function initializeLLM(path) {
   }
 }
 
-async function createLLMSession(sessionId, enableDeveloperMode) {
+async function createLLMSession(sessionId) {
   const { LlamaChatSession } = await import("node-llama-cpp");
 
 
-  const basePath = isDev
-    ? path.join(__dirname, '..', '..', 'assets', 'system_prompts') // dev
-    : path.join(app.getAppPath(), 'assets', 'system_prompts');     // prod
-  const filePath = path.join(basePath, 'system_prompt.txt');
 
-  const content = fs.readFileSync(filePath, 'utf-8');
 
   try {
     if (sessions.has(sessionId)) {
@@ -124,15 +145,9 @@ async function createLLMSession(sessionId, enableDeveloperMode) {
     const startTime = Date.now();
     const context = await model.createContext({ ...defaultModelOptions });
 
-    let sysPrompt = null;
-
-    if (enableDeveloperMode) {
-      sysPrompt = content
-    }
 
     const session = new LlamaChatSession({
       contextSequence: context.getSequence(),
-      systemPrompt: content,
     });
 
     const sessionData = {

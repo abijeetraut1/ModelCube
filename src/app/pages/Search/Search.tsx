@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
     Search as searchIcon, User, FileText, Code, PackageOpen, ImageIcon, Video,
@@ -21,8 +21,12 @@ import { storeDownloadFile } from "@/lib/Database/Download";
 
 export default function Search() {
     const [models, setModels] = useState<string | null>(null);
-    const [search, setSearch] = useState<string | null>("deepseek-coder");
+    const [search, setSearch] = useState<string | null>("deepseek-r1");
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+    useEffect(() => {
+        searchLLM();
+    }, []);
 
     const getTypeIcon = (type) => {
         switch (type) {
@@ -116,7 +120,7 @@ export default function Search() {
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search for anything..."
                                 className="pl-4 w-full"
-                                defaultValue="deepseek-coder"
+                                defaultValue="deepseek-r1"
                             />
                         </div>
                         <div className="relative">
@@ -164,8 +168,8 @@ export default function Search() {
                                         </div>
 
                                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                                            <div className="flex items-center space-x-1"><User className="w-3 h-3" /><span>{model.developer}</span></div>
-                                            <div className="flex items-center space-x-1"><Eye className="w-3 h-3" /><span>{model.likes?.toLocaleString?.() || 0}</span></div>
+                                            {/* <div className="flex items-center space-x-1"><User className="w-3 h-3" /><span>{model.developer}</span></div> */}
+                                            {/* <div className="flex items-center space-x-1"><Eye className="w-3 h-3" /><span>{model.likes?.toLocaleString?.() || 0}</span></div> */}
                                             <div className="flex items-center space-x-1">
                                                 <Clock className="w-3 h-3" />
                                                 <span>{new Date(model.createdAt).toLocaleString("en-US", {

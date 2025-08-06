@@ -6,6 +6,12 @@ import Welcome from "@/app/compnents/welcome/welcome";
 import Prompt from "@/app/compnents/Prompt/Prompt";
 import { getSlugs, storeSlugs } from "@/lib/Database/StoreSlugs";
 import { useParams } from "react-router-dom";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { toast } from "sonner";
 
 
 export default function Home({ params }: { params: Promise<{ slug: string }> }) {
@@ -19,21 +25,21 @@ export default function Home({ params }: { params: Promise<{ slug: string }> }) 
 
     const { slug } = useParams();
 
-    useEffect(() => {
-        // checks the new slug everytime when the user visits
-        const generateSlugs = async () => {
-            const newSlug = uuidv4();
-            const conversationSlug = await getSlugs();
+    // useEffect(() => {
+    //     // checks the new slug everytime when the user visits
+    //     const generateSlugs = async () => {
+    //         const newSlug = uuidv4();
+    //         const conversationSlug = await getSlugs();
 
-            if (!conversationSlug.message.includes(newSlug)) {
-                await storeSlugs(newSlug);
-            } else {
-                generateSlugs();
-            }
-        }
+    //         if (!conversationSlug.message.includes(newSlug)) {
+    //             await storeSlugs(newSlug);
+    //         } else {
+    //             generateSlugs();
+    //         }
+    //     }
 
-        generateSlugs();
-    }, []);
+    //     generateSlugs();
+    // }, []);
 
     // Add mounted state to prevent SSR issues
     useEffect(() => {
@@ -67,6 +73,9 @@ export default function Home({ params }: { params: Promise<{ slug: string }> }) 
 
     // Move setChatSlug logic to the main component
     const setChatSlug = async () => {
+        toast.success("Model not initialized", {
+            description: "please choose a model or download"
+        })
         // if (!input.trim() || !isSocketReady) return;
 
         // if (!slug) {
@@ -94,7 +103,10 @@ export default function Home({ params }: { params: Promise<{ slug: string }> }) 
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        setChatSlug();
+        toast.success("Model not initialized", {
+            description: "please choose a model or download"
+        })
+        // setChatSlug();
         // if (e.key === "Enter" && !e.shiftKey) {
         //   e.preventDefault();
         //   if (!isWaitingForResponse && input.trim()) {
@@ -128,6 +140,7 @@ export default function Home({ params }: { params: Promise<{ slug: string }> }) 
                             isWaitingForResponse={isWaitingForResponse}
                         />
                     </div>
+
                 </div>
 
             </div>

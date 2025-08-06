@@ -22,7 +22,7 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    icon: './assets/modelcube.ico',
+    icon: './assets/icons/appIcon.ico',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -91,10 +91,9 @@ ipcMain.once("set-chat-id", async (event, message) => {
   if (!message.chatId) return;
 
   chatID = message.chatId;
-  const enableDeveloperMode = message.enableDeveloperMode;
 
   console.log(message);
-  const session = await createLLMSession(chatID, enableDeveloperMode);
+  const session = await createLLMSession(chatID);
 });
 
 ipcMain.on("on-trigger-page-load", (event, msg) => {
@@ -118,6 +117,9 @@ ipcMain.handle('restart-chat', async () => {
   restartSession();
 });
 
+
+
+
 ipcMain.handle('open-file-dialog', async () => {
   const result = await dialog.showOpenDialog({
     title: 'Select a model file',
@@ -130,6 +132,31 @@ ipcMain.handle('open-file-dialog', async () => {
   if (!result.canceled) {
     const res = await initializeLLM(result.filePaths[0]);
     return res;
+  }
+});
+
+// train model
+ipcMain.handle('open-file-dialog-dataset', async () => {
+  try {
+    const result = await dialog.showOpenDialog({
+      title: 'Select Dataset File',
+      properties: ['openFile'],
+      filters: [
+        { name: 'CSV or JSON', extensions: ['csv', 'json'] }
+      ]
+    });
+
+    if (result.canceled) {
+      return { status: 400, message: 'File selection canceled.' };
+    }
+
+    return {
+      status: 200,
+      message: `File selected: ${result.filePaths[0]}`,
+      filePath: result.filePaths[0]
+    };
+  } catch (error) {
+    return { status: 500, message: 'Failed to open file dialog.' };
   }
 });
 

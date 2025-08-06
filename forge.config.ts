@@ -1,8 +1,4 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
-import { MakerSquirrel } from '@electron-forge/maker-squirrel';
-import { MakerZIP } from '@electron-forge/maker-zip';
-import { MakerDeb } from '@electron-forge/maker-deb';
-import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
@@ -10,6 +6,7 @@ import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-nati
 
 const config: ForgeConfig = {
   packagerConfig: {
+    icon: "./assets/icons/appIcon",
     asar: {
       unpack: "**/node_modules/@node-llama-cpp/**/*"
     },
@@ -18,30 +15,96 @@ const config: ForgeConfig = {
       /^\/src\//,
       /^\/\.vscode\//,
       /^\/\.git\//,
+      /^\/temp\//, // Ignore temp folder
+      /^\/out\//, // Ignore output folder
     ],
     // Explicitly include native modules
     extraResource: [
       "./node_modules/@node-llama-cpp",
-      // "./src/llm_service/system_prompts/system_prompt.txt"
     ],
-    extraFiles: [
-      {
-        from: "assets/system_prompts", // ✅ this is your folder with 1044-line txt files
-        to: "assets/system_prompts",
-      }
-    ]
-
   },
   rebuildConfig: {
     force: true,
     onlyModules: ["@node-llama-cpp", "node-llama-cpp"],
   },
   makers: [
-    new MakerSquirrel({}),
-    new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
-    new MakerDeb({}),
+    // WINDOWS MAKERS
+    {
+      name: '@electron-forge/maker-squirrel',
+      platforms: ['win32'],
+      config: {
+        setupIcon: './assets/icons/appIcon.ico',
+        authors: 'Team Modelcube',
+        description: 'Allows models to run locally'
+      }
+    },
+    {
+      name: '@electron-forge/maker-wix',
+      platforms: ['win32'],
+      config: {
+        icon: './assets/icons/appIcon.ico',
+        manufacturer: 'Team Modelcube',
+        description: 'Allows models to run locally',
+        ui: {
+          chooseDirectory: true
+        }
+      }
+    },
+    {
+      name: '@electron-forge/maker-zip',
+      platforms: ['win32']
+    },
 
+    // MACOS MAKERS
+    {
+      name: '@electron-forge/maker-dmg',
+      platforms: ['darwin'],
+      config: {
+        icon: './assets/icons/appIcon.icns',
+        name: 'ModelCube',
+        title: 'ModelCube ${version}',
+        format: 'ULFO'
+      }
+    },
+    {
+      name: '@electron-forge/maker-zip',
+      platforms: ['darwin']
+    },
+
+    // LINUX MAKERS
+    {
+      name: '@electron-forge/maker-deb',
+      platforms: ['linux'],
+      config: {
+        options: {
+          name: 'modelcube',
+          maintainer: 'Team Modelcube <team@modelcube.com>',
+          homepage: 'http://modelcube.vercel.app/',
+          icon: './assets/icons/appIcon.png',
+          description: 'Allows models to run locally',
+          categories: ['Science', 'Development', 'Utility']
+        }
+      }
+    },
+    {
+      name: '@electron-forge/maker-rpm',
+      platforms: ['linux'],
+      config: {
+        options: {
+          name: 'modelcube',
+          maintainer: 'Team Modelcube <team@modelcube.com>',
+          homepage: 'http://modelcube.vercel.app/',
+          icon: './assets/icons/appIcon.png',
+          description: 'Allows models to run locally',
+          categories: ['Science', 'Development', 'Utility'],
+          license: 'MIT'
+        }
+      }
+    },
+    {
+      name: '@electron-forge/maker-zip',
+      platforms: ['linux']
+    }
   ],
   plugins: [
     new AutoUnpackNativesPlugin({

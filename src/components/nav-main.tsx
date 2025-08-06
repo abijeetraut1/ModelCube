@@ -42,7 +42,9 @@ export function NavMain({
           {items && items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton tooltip={item.title}>
-                <IconPrompt />
+                {/* <IconPrompt /> */}
+                  <item.icon className="w-5 h-5" />
+
                 <span>{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>

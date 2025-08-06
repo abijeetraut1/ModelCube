@@ -1,0 +1,122 @@
+[
+    {
+        "text": "I absolutely love this product! It exceeded all my expectations and the quality is outstanding.",
+        "label": "positive"
+    },
+    {
+        "text": "This movie was terrible. I wasted two hours of my life watching this garbage.",
+        "label": "negative"
+    },
+    {
+        "text": "The weather today is okay, nothing special but not bad either.",
+        "label": "neutral"
+    },
+    {
+        "text": "Amazing customer service! The staff was incredibly helpful and friendly.",
+        "label": "positive"
+    },
+    {
+        "text": "I'm so disappointed with this purchase. It broke after just one day of use.",
+        "label": "negative"
+    },
+    {
+        "text": "The restaurant has decent food. It's not the best I've had but it's acceptable.",
+        "label": "neutral"
+    },
+    {
+        "text": "This book changed my perspective on life. Absolutely brilliant writing!",
+        "label": "positive"
+    },
+    {
+        "text": "Worst experience ever. The service was slow and the food was cold.",
+        "label": "negative"
+    },
+    {
+        "text": "The app works fine. Does what it's supposed to do without any issues.",
+        "label": "neutral"
+    },
+    {
+        "text": "I'm thrilled with my new laptop! Fast performance and great battery life.",
+        "label": "positive"
+    },
+    {
+        "text": "This class is so boring. The professor just reads from slides the entire time.",
+        "label": "negative"
+    },
+    {
+        "text": "The hotel room was standard. Clean and comfortable but nothing fancy.",
+        "label": "neutral"
+    },
+    {
+        "text": "Fantastic concert! The band's energy was infectious and the sound quality was perfect.",
+        "label": "positive"
+    },
+    {
+        "text": "I regret buying this phone. The camera quality is poor and it crashes frequently.",
+        "label": "negative"
+    },
+    {
+        "text": "The meeting was productive. We covered all the agenda items as planned.",
+        "label": "neutral"
+    },
+    {
+        "text": "Best vacation ever! The beaches were pristine and the locals were so welcoming.",
+        "label": "positive"
+    },
+    {
+        "text": "This software is buggy and unintuitive. It makes simple tasks unnecessarily complicated.",
+        "label": "negative"
+    },
+    {
+        "text": "The presentation was informative. It covered the basics of the topic adequately.",
+        "label": "neutral"
+    },
+    {
+        "text": "I'm so happy with my new job! Great colleagues and interesting projects.",
+        "label": "positive"
+    },
+    {
+        "text": "Traffic was horrible today. It took me three times longer to get to work.",
+        "label": "negative"
+    },
+    {
+        "text": "The grocery store has a reasonable selection of products at fair prices.",
+        "label": "neutral"
+    },
+    {
+        "text": "This recipe turned out perfectly! My family loved every bite.",
+        "label": "positive"
+    },
+    {
+        "text": "The flight was delayed for four hours with no explanation. Very frustrating experience.",
+        "label": "negative"
+    },
+    {
+        "text": "The conference room is adequately sized for our team meetings.",
+        "label": "neutral"
+    },
+    {
+        "text": "Outstanding performance by the entire cast! This play deserves all the awards.",
+        "label": "positive"
+    },
+    {
+        "text": "The new policy is confusing and seems to create more problems than it solves.",
+        "label": "negative"
+    },
+    {
+        "text": "The coffee shop has a quiet atmosphere, good for working or studying.",
+        "label": "neutral"
+    },
+    {
+        "text": "I'm delighted with the results of the project. Everything went smoothly!",
+        "label": "positive"
+    },
+    {
+        "text": "This update made the app worse. Features that used to work are now broken.",
+        "label": "negative"
+    },
+    {
+        "text": "The workshop provided useful information about industry trends and best practices.",
+        "label": "neutral"
+    }
+]

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import remarkGfm from 'remark-gfm';
@@ -11,8 +12,34 @@ import { Copy } from "lucide-react";
 const ChatModelMarkdown = ({ response, isThinking }) => {
     if (!response || !response.message) return null;
 
+    const scrollContainerRef = useRef(null);
 
     console.log(response);
+
+    // Auto-scroll when typing/thinking
+    useEffect(() => {
+        if (isThinking && scrollContainerRef.current) {
+            const scrollContainer = scrollContainerRef.current;
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        }
+    }, [response.message, isThinking]);
+
+    // Alternative: Smooth auto-scroll
+    const scrollToBottom = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({
+                top: scrollContainerRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    // Call smooth scroll when content updates during thinking
+    useEffect(() => {
+        if (isThinking) {
+            scrollToBottom();
+        }
+    }, [response.message, isThinking]);
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text).catch(() => {
@@ -29,7 +56,10 @@ const ChatModelMarkdown = ({ response, isThinking }) => {
 
     return (
         <Card className={`shadow-none border-none flex justify-end items-end gap-2 select-text ${isThinking ? "p-1 bg-secondary/70 text-zinc-400 overflow-clip italic" : "bg-transparent px-0 py-0"}`}>
-            <div className={`designed-scroll-bar h-full w-full ${isThinking ? "rounded-md" : ""} overflow-auto select-text cursor-text`}>
+            <div
+                ref={scrollContainerRef}
+                className={`designed-scroll-bar h-full w-full ${isThinking ? "rounded-md" : ""} overflow-auto select-text cursor-text`}
+            >
                 <Markdown
                     remarkPlugins={[remarkGfm]}
                     components={{
@@ -38,7 +68,7 @@ const ChatModelMarkdown = ({ response, isThinking }) => {
                             const codeString = String(children).replace(/\n$/, "");
 
                             return match ? (
-                                <div className="bg-muted/80 my-3 rounded-md overflow-clip border ">
+                                <div className="bg-muted/80 my-3 rounded-md overflow-clip border">
                                     <div className="px-3 py-2 flex items-center justify-between bg-muted border-b">
                                         <div className="text-foreground font-medium text-sm">
                                             {response.path || match[1]}
@@ -68,7 +98,7 @@ const ChatModelMarkdown = ({ response, isThinking }) => {
                                         {...props}
                                         language={match[1]}
                                         style={vscDarkPlus}
-                                        className="designed-scroll-bar "
+                                        className="designed-scroll-bar"
                                         customStyle={{
                                             margin: 0,
                                             borderTopLeftRadius: 0,
@@ -89,91 +119,131 @@ const ChatModelMarkdown = ({ response, isThinking }) => {
                                 </code>
                             );
                         },
-                        p: ({ children }) => <p className="leading-7 [&:not(:first-child)]:mt-6">{children}</p>,
-                        h1: ({ children }) => <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">{children}</h1>,
-                        h2: ({ children }) => <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">{children}</h2>,
-                        h3: ({ children }) => <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">{children}</h3>,
-                        h4: ({ children }) => <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">{children}</h4>,
-                        blockquote: ({ children }) => <blockquote className="mt-6 border-l-2 pl-6 italic">{children}</blockquote>,
-                        small: ({ children }) => <small className="text-sm leading-none font-medium">{children}</small>,
-
-                        ul: ({ children, depth = 0 }) => (
+                        // Typography components using shadcn/ui classes
+                        p: ({ children }) => (
+                            <p className="leading-7 [&:not(:first-child)]:mt-6">
+                                {children}
+                            </p>
+                        ),
+                        h1: ({ children }) => (
+                            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+                                {children}
+                            </h1>
+                        ),
+                        h2: ({ children }) => (
+                            <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+                                {children}
+                            </h2>
+                        ),
+                        h3: ({ children }) => (
+                            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                                {children}
+                            </h3>
+                        ),
+                        h4: ({ children }) => (
+                            <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
+                                {children}
+                            </h4>
+                        ),
+                        h5: ({ children }) => (
+                            <h5 className="scroll-m-20 text-lg font-semibold tracking-tight">
+                                {children}
+                            </h5>
+                        ),
+                        h6: ({ children }) => (
+                            <h6 className="scroll-m-20 text-base font-semibold tracking-tight">
+                                {children}
+                            </h6>
+                        ),
+                        blockquote: ({ children }) => (
+                            <blockquote className="mt-6 border-l-2 pl-6 italic">
+                                {children}
+                            </blockquote>
+                        ),
+                        small: ({ children }) => (
+                            <small className="text-sm font-medium leading-none">
+                                {children}
+                            </small>
+                        ),
+                        // Lists with proper shadcn/ui styling
+                        ul: ({ children }) => (
                             <ul className="my-6 ml-6 list-disc [&>li]:mt-2">
                                 {children}
                             </ul>
                         ),
-
-                        ol: ({ children, depth = 0, start = 1 }) => (
-                            <ol className={`
-                mb-4 last:mb-0 space-y-2 
-                ${depth > 0 ? 'ml-6 mt-2 mb-2 space-y-1' : 'ml-0'}
-              `}
-                                style={{
-                                    listStyle: 'none',
-                                    counterReset: `list-counter ${start - 1}`
-                                }}>
+                        ol: ({ children }) => (
+                            <ol className="my-6 ml-6 list-decimal [&>li]:mt-2">
                                 {children}
                             </ol>
                         ),
-
-                        li: ({ children, ordered, ...props }) => {
-                            const isOrdered = props.node?.parent?.tagName === 'ol';
-                            const depth = (props.node?.parent?.depth || 0) - 2;
-
-                            return (
-                                <li className="leading-relaxed relative"
-                                    style={isOrdered ? { counterIncrement: 'list-counter' } : {}}>
-                                    <div className="flex items-start gap-3">
-
-                                        <div className={`
-                      flex-shrink-0 select-none flex items-center justify-center
-                      transition-colors duration-200
-                      ${isThinking ? "bg-zinc-400" : ""}
-                      ${isOrdered
-                                                ? 'w-7 h-7 bg-primary/10 text-primary border border-primary/20 rounded-full font-semibold text-sm hover:bg-primary/20'
-                                                : 'w-2 h-2 bg-primary rounded-full mt-2 hover:bg-primary/80'
-                                            }
-                      ${depth > 0 ? 'scale-90' : ''}
-                    `}>
-                                            {isOrdered && (
-                                                <span className="font-bold -zinc-500 text-xs" style={{
-                                                    content: 'counter(list-counter)'
-                                                }}>
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <div className={`${isThinking ? "text-zinc-400" : "text-foreground"}`}>{children}</div>
-                                        </div>
-                                    </div>
-                                </li>
-                            );
-                        },
-
+                        li: ({ children }) => (
+                            <li className="leading-7">
+                                {children}
+                            </li>
+                        ),
+                        // Table components with proper structure
                         table: ({ children }) => (
                             <div className="my-6 w-full overflow-y-auto">
-                                <table className="w-full">{children}</table>
+                                <table className="w-full">
+                                    {children}
+                                </table>
                             </div>
                         ),
                         thead: ({ children }) => (
-                            <thead>{children}</thead>
+                            <thead>
+                                {children}
+                            </thead>
+                        ),
+                        tbody: ({ children }) => (
+                            <tbody>
+                                {children}
+                            </tbody>
                         ),
                         tr: ({ children }) => (
-                            <th className="even:bg-muted m-0 border-t p-0">{children}</th>
+                            <tr className="m-0 border-t p-0 even:bg-muted">
+                                {children}
+                            </tr>
                         ),
                         th: ({ children }) => (
-                            <th className="border-b border-muted bg-muted/50 px-4 py-3 text-left font-semibold text-sm">{children}</th>
+                            <th className="border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right">
+                                {children}
+                            </th>
                         ),
-                        td: ({ children }) => <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">{children}</td>,
+                        td: ({ children }) => (
+                            <td className="border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right">
+                                {children}
+                            </td>
+                        ),
+                        // Additional elements
+                        hr: () => (
+                            <hr className="my-4 md:my-8" />
+                        ),
+                        strong: ({ children }) => (
+                            <strong className="font-semibold">
+                                {children}
+                            </strong>
+                        ),
+                        em: ({ children }) => (
+                            <em className="italic">
+                                {children}
+                            </em>
+                        ),
+                        a: ({ children, href }) => (
+                            <a
+                                href={href}
+                                className="font-medium text-primary underline underline-offset-4"
+                            >
+                                {children}
+                            </a>
+                        ),
                     }}
                 >
                     {response.message}
                 </Markdown>
             </div>
-        </Card >
+        </Card>
     );
-}
+};
 
 const ChatUserMarkdown = ({ response }) => {
     if (!response || !response.message) return null;

@@ -1,8 +1,6 @@
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Link, useNavigate } from "react-router-dom"
-import { v4 as uuidv4 } from "uuid";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useNavigate } from "react-router-dom";
 
 export function SiteHeader() {
   const navigate = useNavigate();
@@ -15,15 +13,15 @@ export function SiteHeader() {
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
         />
-        <h1 className="text-base font-medium">Documents</h1>
-        <div className="ml-auto flex items-center gap-2">
+        {/* <h1 className="text-base font-medium">Documents</h1> */}
+        {/* <div className="ml-auto flex items-center gap-2">
           <Button onClick={() => {
             const slug = uuidv4();
             navigate("c/" + slug + "/code-space");
           }} variant="outline" size="sm" className="hidden sm:flex">
             Code Space
           </Button>
-        </div>
+        </div> */}
       </div>
     </header>
   )
