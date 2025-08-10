@@ -16,7 +16,10 @@
       "vite/client",
       "node"
     ],
-    "lib": ["DOM", "ESNext"],
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
     "baseUrl": ".",
     "paths": {
       "@/*": [

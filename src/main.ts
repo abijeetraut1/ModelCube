@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import path from 'path';
 import started from 'electron-squirrel-startup';
 import DownloadManager from "electron-download-manager"
+import fs from "fs";
 
 import {
   initializeLLM,
@@ -135,7 +136,11 @@ ipcMain.handle('open-file-dialog', async () => {
   }
 });
 
+
+
 // train model
+let dataset;
+
 ipcMain.handle('open-file-dialog-dataset', async () => {
   try {
     const result = await dialog.showOpenDialog({
@@ -150,20 +155,77 @@ ipcMain.handle('open-file-dialog-dataset', async () => {
       return { status: 400, message: 'File selection canceled.' };
     }
 
+    dataset = result.filePaths[0];
+
+
     return {
       status: 200,
       message: `File selected: ${result.filePaths[0]}`,
       filePath: result.filePaths[0]
     };
+
   } catch (error) {
     return { status: 500, message: 'Failed to open file dialog.' };
   }
 });
 
+/*
+ipcMain.handle('show-train-alert', async () => {
+
+  if(!dataset) return {
+    status: 400,
+    message: "no file selected",
+  }
+  const fileExtension = dataset?.split(".").pop();
+
+  if (fileExtension === "json") {
+    console.log("json file");
+  } else if (fileExtension === "csv") {
+    console.log("csv file");
+  } else {
+    console.log(`${fileExtension} file`);
+  }
+
+
+  console.log(dataset)
+
+  const jsonFile = fs.readFileSync(dataset, "utf-8");
+  const jsonArrr = JSON.parse(jsonFile)
+
+  jsonArrr.forEach(el => {
+    console.log(el.text)
+  });
+
+});
+*/
+
+ipcMain.on('start-dataset-extration', async (event) => {
+  if (!dataset) {
+    event.sender.send('training-log', '❌ No file selected.');
+    return;
+  }
+
+  // const fileExtension = dataset.split(".").pop();
+  // event.sender.send('training-log', `📄 File extension: ${fileExtension}`);
+
+  try {
+    const jsonFile = fs.readFileSync(dataset, "utf-8");
+    const jsonArr = JSON.parse(jsonFile);
+
+    console.log(jsonArr);
+
+    event.sender.send('extract-dataset', {
+      status: 200,
+      message: `File Extracted Successfull `,
+      data: jsonArr
+    });
+  } catch (error) {
+    event.sender.send('extract-dataset', `❌ Error: ${error.message}`);
+  }
+});
 
 
 // download 
-
 DownloadManager.register({
   downloadFolder: app.getPath("downloads")
 });

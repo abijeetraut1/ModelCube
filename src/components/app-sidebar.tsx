@@ -7,7 +7,7 @@ import {
   IconSettings,
   IconPrompt
 } from "@tabler/icons-react"
-import { Download, History, Search, Home, Image, ScanFace, ScanText } from "lucide-react";
+import { Download, History, Search, Home, Image, ScanFace, ScanText, BrainCircuit } from "lucide-react";
 import { FileBox } from "lucide-react";
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -41,22 +41,10 @@ const data = {
   //   },
   // ],
   navSecondary: [
-    // {
-    //   title: "Face Mesh",
-    //   url: "/face-Mesh",
-    //   icon: ScanFace as Icon,
-    //   complete: true
-    // },
-    // {
-    //   title: "Image Classifier",
-    //   url: "/image-classifier",
-    //   icon: Image as Icon,
-    //   complete: true
-    // },
     {
-      title: "Text Classification",
+      title: "Text Based ML",
       url: "/ai",
-      icon: ScanText as Icon,
+      icon: BrainCircuit as Icon,
       complete: true
     },
     {
