@@ -45,7 +45,6 @@ export default function Settings() {
             if (settings?.status == 200) {
                 setUpdateParameters(settings.response);
             }
-            console.log(updatedParameters)
         })();
 
     }, []);
