@@ -7,10 +7,11 @@ import { ArrowLeft, CloudLightning, Download, Cpu, MemoryStick, Settings as sett
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RESET_DEFAULTS from "@/constant/defaultParameters";
 import axios from "axios";
 import { toast } from "sonner";
+import { fetchSettings, updateSettings } from "@/lib/Database/settings";
 
 export default function Settings() {
 
@@ -21,7 +22,7 @@ export default function Settings() {
         batchSize: 128,
         threads: 4,
         optimizedMatrixMultiplication: true,
-        contextSize: 5000,
+        contextSize: 0,
         memoryLocking: false,
         memoryMapping: true,
         lowVramMode: true,
@@ -35,6 +36,19 @@ export default function Settings() {
         gpuLayersAlternative: 20,
         randomSeed: 42,
     });
+
+    useEffect(() => {
+
+        (async () => {
+            const settings = await fetchSettings();
+
+            if (settings?.status == 200) {
+                setUpdateParameters(settings.response);
+            }
+            console.log(updatedParameters)
+        })();
+
+    }, []);
 
     const updateParameters = (field, value) => {
         console.log(field, value)
@@ -86,21 +100,8 @@ export default function Settings() {
             return;
         }
 
-        try {
-            const updateResponse = await axios.post(
-                import.meta.env.VITE_SERVER_ADDRESS + "/api/v1/model-control/update-model-parameters",
-                updatedParameters
-            );
+        await updateSettings(updatedParameters);
 
-            if (updateResponse.data.code === 200) {
-                toast.success("Fields updated successfully!");
-            } else {
-                toast.error("Failed to update fields!");
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error("Error sending request.");
-        }
     };
 
 
@@ -140,7 +141,7 @@ export default function Settings() {
                                         <Input
                                             type="text"
                                             className="w-full"
-                                            value={updatedParameters.downloadDirectory}
+                                            value={updatedParameters?.downloadDirectory}
                                             onChange={(e) => updateParameters('downloadDirectory', e.target.value)}
                                             placeholder="Enter download directory path"
                                             disabled
@@ -188,7 +189,7 @@ export default function Settings() {
                                     </label>
                                     <Textarea
                                         id="system-prompt"
-                                        value={updatedParameters.systemPrompt}
+                                        value={updatedParameters?.systemPrompt}
                                         onChange={(e) => updateParameters('systemPrompt', e.target.value)}
                                         placeholder="Write detailed instructions for the system prompt here..."
                                         className="w-full resize-none"
@@ -213,7 +214,7 @@ export default function Settings() {
                                     <label className="text-sm font-medium">Batch Size</label>
                                     <Input
                                         type="number"
-                                        value={updatedParameters.batchSize}
+                                        value={updatedParameters?.batchSize}
                                         onChange={(e) => updateParameters('batchSize', parseInt(e.target.value))}
                                         className="w-full"
                                     />
@@ -223,7 +224,7 @@ export default function Settings() {
                                     <label className="text-sm font-medium">Threads</label>
                                     <Input
                                         type="number"
-                                        value={updatedParameters.threads}
+                                        value={updatedParameters?.threads}
                                         onChange={(e) => updateParameters('threads', parseInt(e.target.value))}
                                         className="w-full"
                                     />
@@ -237,7 +238,7 @@ export default function Settings() {
                                         <p className="text-xs text-muted-foreground">Enable faster computation algorithms</p>
                                     </div>
                                     <Switch
-                                        checked={updatedParameters.optimizedMatrixMultiplication}
+                                        checked={updatedParameters?.optimizedMatrixMultiplication}
                                         onCheckedChange={(checked) => updateParameters('optimizedMatrixMultiplication', checked)}
                                     />
                                 </div>
@@ -258,7 +259,7 @@ export default function Settings() {
                                 <label className="text-sm font-medium">Context Size</label>
                                 <Input
                                     type="number"
-                                    value={updatedParameters.contextSize}
+                                    value={updatedParameters?.contextSize}
                                     onChange={(e) => updateParameters('contextSize', parseInt(e.target.value))}
                                     className="w-full"
                                     max={4096}
@@ -273,7 +274,7 @@ export default function Settings() {
                                             <p className="text-xs text-muted-foreground">Lock model in RAM to prevent swapping</p>
                                         </div>
                                         <Switch
-                                            checked={updatedParameters.memoryLocking}
+                                            checked={updatedParameters?.memoryLocking}
                                             onCheckedChange={(checked) => updateParameters('memoryLocking', checked)}
                                         />
                                     </div>
@@ -283,7 +284,7 @@ export default function Settings() {
                                             <p className="text-xs text-muted-foreground">Enable memory mapping for efficient loading</p>
                                         </div>
                                         <Switch
-                                            checked={updatedParameters.memoryMapping}
+                                            checked={updatedParameters?.memoryMapping}
                                             onCheckedChange={(checked) => updateParameters('memoryMapping', checked)}
                                         />
                                     </div>
@@ -293,7 +294,7 @@ export default function Settings() {
                                             <p className="text-xs text-muted-foreground">Optimize for systems with limited VRAM</p>
                                         </div>
                                         <Switch
-                                            checked={updatedParameters.lowVramMode}
+                                            checked={updatedParameters?.lowVramMode}
                                             onCheckedChange={(checked) => updateParameters('lowVramMode', checked)}
                                         />
                                     </div>
@@ -316,7 +317,7 @@ export default function Settings() {
                                     <label className="text-sm font-medium">RoPE Frequency Base</label>
                                     <Input
                                         type="number"
-                                        value={updatedParameters.ropeFrequencyBase}
+                                        value={updatedParameters?.ropeFrequencyBase}
                                         onChange={(e) => updateParameters('ropeFrequencyBase', parseInt(e.target.value))}
                                         className="w-full"
                                     />
@@ -327,7 +328,7 @@ export default function Settings() {
                                     <Input
                                         type="number"
                                         step="0.1"
-                                        value={updatedParameters.ropeFrequencyScale}
+                                        value={updatedParameters?.ropeFrequencyScale}
                                         onChange={(e) => updateParameters('ropeFrequencyScale', parseFloat(e.target.value))}
                                         className="w-full"
                                     />
@@ -342,7 +343,7 @@ export default function Settings() {
                                             <p className="text-xs text-muted-foreground">Use 16-bit precision for key-value cache</p>
                                         </div>
                                         <Switch
-                                            checked={updatedParameters.halfPrecisionKvCache}
+                                            checked={updatedParameters?.halfPrecisionKvCache}
                                             onCheckedChange={(checked) => updateParameters('halfPrecisionKvCache', checked)}
                                         />
                                     </div>
@@ -352,7 +353,7 @@ export default function Settings() {
                                             <p className="text-xs text-muted-foreground">Return logits for all tokens</p>
                                         </div>
                                         <Switch
-                                            checked={updatedParameters.outputAllLogits}
+                                            checked={updatedParameters?.outputAllLogits}
                                             onCheckedChange={(checked) => updateParameters('outputAllLogits', checked)}
                                         />
                                     </div>
@@ -362,7 +363,7 @@ export default function Settings() {
                                             <p className="text-xs text-muted-foreground">Load only vocabulary without weights</p>
                                         </div>
                                         <Switch
-                                            checked={updatedParameters.vocabularyOnlyMode}
+                                            checked={updatedParameters?.vocabularyOnlyMode}
                                             onCheckedChange={(checked) => updateParameters('vocabularyOnlyMode', checked)}
                                         />
                                     </div>
@@ -372,7 +373,7 @@ export default function Settings() {
                                             <p className="text-xs text-muted-foreground">Use model for embeddings only</p>
                                         </div>
                                         <Switch
-                                            checked={updatedParameters.embeddingMode}
+                                            checked={updatedParameters?.embeddingMode}
                                             onCheckedChange={(checked) => updateParameters('embeddingMode', checked)}
                                         />
                                     </div>
@@ -395,7 +396,7 @@ export default function Settings() {
                                     <label className="text-sm font-medium">GPU Layers</label>
                                     <Input
                                         type="number"
-                                        value={updatedParameters.gpuLayers}
+                                        value={updatedParameters?.gpuLayers}
                                         onChange={(e) => updateParameters('gpuLayers', parseInt(e.target.value))}
                                         className="w-full"
                                         disabled
@@ -406,7 +407,7 @@ export default function Settings() {
                                     <label className="text-sm font-medium">GPU Layers (Alternative)</label>
                                     <Input
                                         type="number"
-                                        value={updatedParameters.gpuLayersAlternative}
+                                        value={updatedParameters?.gpuLayersAlternative}
                                         onChange={(e) => updateParameters('gpuLayersAlternative', parseInt(e.target.value))}
                                         className="w-full"
                                         disabled
@@ -441,7 +442,7 @@ export default function Settings() {
                                 <label className="text-sm font-medium">Random Seed</label>
                                 <Input
                                     type="number"
-                                    value={updatedParameters.randomSeed}
+                                    value={updatedParameters?.randomSeed}
                                     onChange={(e) => updateParameters('randomSeed', parseInt(e.target.value))}
                                     className="w-full"
                                 />
