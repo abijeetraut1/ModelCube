@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardFooter, CardTitle } from "@/components/ui/card";
 import { Label } from '@/components/ui/label';
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 
 
@@ -21,8 +22,6 @@ const chartConfig = {
 
 
 export default function NodeCreator({ title, contents }) {
-
-
     const chartData = contents.map((row, idx) => ({
         step: idx + 1,
         ...Object.fromEntries(
@@ -30,10 +29,14 @@ export default function NodeCreator({ title, contents }) {
         )
     }));
 
+
+
     return (
-        <div>
+        <div className='flex flex-col gap-2'>
+
             <Card className="pt-0">
                 <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+
                     <ChartContainer
                         config={chartConfig}
                         className="aspect-auto h-[250px] w-full"
@@ -81,7 +84,7 @@ export default function NodeCreator({ title, contents }) {
                                 content={
                                     <ChartTooltipContent
                                         labelFormatter={(value) => {
-                                            console.log(value);
+                                            // console.log(value);
                                             `Step ${value}`
                                         }}
                                         indicator="dot"

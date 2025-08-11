@@ -1,26 +1,57 @@
 import IndexedDB from "@/config/IndexedDb";
 
+
 export const storeDownloadFile = async (file) => {
-    const existing = await IndexedDB.downloads
-        .where("fileName")
-        .equals(file.fileName)
-        .first();
+    console.log(file)
+
+    const existing = await IndexedDB.downloads.get(file.fileName);
 
     if (!existing) {
         await IndexedDB.downloads.add({
-            fileName: file.fileName,
-            url: file.downloadUrl,
-            progress: file.progress || 0,
-            status: file.status || "downloading",
-            createdAt: Date.now()
-        });
-    } else {
-        // ✅ Update existing record
-        await IndexedDB.downloads.update(existing.id, {
+            id: file.fileName,
+            url: file.url,
             progress: file.progress,
-            status: file.status
+            status: file.status,
+            total: file.total,
+            downloaded: 0,
+            createdAt: Date.now(),
+        })
+    } else {
+        await IndexedDB.downloads.update(file.fileName, {
+            id: file.fileName,
+            url: file.url,
+            progress: file.progress,
+            status: file.status,
+            total: file.total,
+            downloaded: 0,
+            createdAt: Date.now(),
         });
     }
+};
+
+export const updateDownload = async (filename, updates) => {
+    // console.log(filename, updates);
+
+    const existing = await IndexedDB.downloads.get(filename);
+
+    if (existing) {
+        console.log(existing, updates)
+
+        existing['progress'] = updates.progress;
+        existing['downloaded'] = updates.downloaded;
+        existing['total'] = updates.total;
+
+        // console.log(existing)
+
+        await IndexedDB.downloads.update(filename, {
+            ...existing,
+            lastUpdated: new Date().toISOString(),
+        });
+        //     return { status: 200, message: "Download updated", id };
+    }
+    // else {
+    //     return { status: 404, message: "Download not found" };
+    // }
 };
 
 export const fetchDownloads = async () => {

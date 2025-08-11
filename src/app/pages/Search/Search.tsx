@@ -12,11 +12,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Headers } from "@/app/compnents/Headers/Headers";
 import MODELS_DOWNLOAD_URL from "@/constant/Models";
 import { toast } from "sonner";
-import { useDownload } from "@/hooks/useDownload";
-import { electron } from "process";
 import { storeDownloadFile } from "@/lib/Database/Download";
 
 export default function Search() {
@@ -76,7 +73,6 @@ export default function Search() {
 
     const triggersDownload = async ({ filename, downloadUrl }) => {
 
-
         window.electronAPI.ipcRenderer.send("get-download-url", {
             filename, downloadUrl
         });
@@ -109,8 +105,6 @@ export default function Search() {
 
     return (
         <div>
-            <Headers />
-
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="space-y-2">
                     <div className="flex w-full space-x-2">

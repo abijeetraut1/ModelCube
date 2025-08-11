@@ -245,6 +245,8 @@ ipcMain.on("get-download-url", (event, { filename, downloadUrl }) => {
   DownloadManager.download({
     url: downloadUrl,
     onProgress: (progress) => {
+
+      // console.log(progress);
       currentProgress = progress; // ✅ Save latest progress
       fileName = filename;
       BrowserWindow.getAllWindows().forEach(win =>
@@ -264,8 +266,6 @@ ipcMain.on("get-download-url", (event, { filename, downloadUrl }) => {
 ipcMain.on("get-current-download", (event) => {
   event.sender.send("current-download", { fileName, currentProgress });
 });
-
-
 
 
 

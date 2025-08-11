@@ -7,7 +7,7 @@ import {
   IconSettings,
   IconPrompt
 } from "@tabler/icons-react"
-import { Download, History, Search, Home, Image, ScanFace, ScanText, BrainCircuit } from "lucide-react";
+import { Download, History, Search, Home, Image, ScanFace, ScanText, BrainCircuit, TypeIcon } from "lucide-react";
 import { FileBox } from "lucide-react";
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -44,7 +44,7 @@ const data = {
     {
       title: "Text Based ML",
       url: "/ai",
-      icon: BrainCircuit as Icon,
+      icon: TypeIcon as Icon,
       complete: true
     },
     {

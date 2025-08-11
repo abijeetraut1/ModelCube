@@ -2,18 +2,50 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardFooter, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Package } from 'lucide-react';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from 'sonner';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TextClassification from './TrainModel/TextClassification';
+import TrainedMlPrompt from './components/Prompt/TrainedMlPrompt';
 
-
-
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
 
 export default function TrainModel() {
     const [datasetPath, setDatasetPath] = useState(null);
+    const [trainedModel, setTrainedModel] = useState(null);
+    const [predictFn, setPredictFn] = useState(null);
+    const [testInput, setTestInput] = useState("");
+    const chatRef = useRef(null);
+    const [testingChats, setTestingChats] = useState([]);
+    const [testModel, setTestModel] = useState(false);
+
+    useEffect(() => {
+        if (!chatRef.current) return;
+        chatRef.current.style.height = "auto";
+        chatRef.current.style.height = `${Math.min(chatRef.current.scrollHeight, 256)}px`;
+    }, [testInput]);
+
+    const adjustHeight = () => {
+        const textarea = chatRef.current
+        if (!textarea) return
+
+        textarea.style.height = "auto"
+
+        const newHeight = Math.min(textarea.scrollHeight, 256)
+        textarea.style.height = `${newHeight}px`
+    }
+
+    useEffect(() => {
+        adjustHeight()
+    }, [testInput])
+
 
     const [params, setParams] = useState({
         trainingType: "text-classification",
@@ -28,15 +60,10 @@ export default function TrainModel() {
 
     const handleSelect = async () => {
         try {
-            // @ts-ignore if electronAPI is not typed
             const connectionResponse = await window.electronAPI.openDatasetFile();
-
-            console.log("connectionResponse:", connectionResponse);
-
             if (connectionResponse.status == 200) {
                 setDatasetPath(connectionResponse.filePath);
             }
-
         } catch (error) {
             console.error("Error selecting dataset file:", error);
             toast.error("An unexpected error occurred while selecting the dataset file.");
@@ -44,28 +71,69 @@ export default function TrainModel() {
     };
 
     const handleTrainModel = async () => {
-        if (!datasetPath) toast.error("Please Select Dataset", {
-            description: "Training Dataset is not selected"
-        });
+        if (!datasetPath) {
+            toast.error("Please Select Dataset", {
+                description: "Training Dataset is not selected"
+            });
+            return;
+        }
 
         window.electronAPI.ipcRenderer.send("start-dataset-extration");
     };
 
     useEffect(() => {
-        window.electronAPI.ipcRenderer.on("extract-dataset", (event, payload) => {
-            console.log(event.data)
-
+        window.electronAPI.ipcRenderer.on("extract-dataset", async (event, payload) => {
             if (event.status == 200) {
-                // TextClassification(payload.data, params);
-                TextClassification(event.data, params);
+                const result = await TextClassification(event.data, params);
+                if (result?.model) {
+                    setTrainedModel(result.model);
+                    setPredictFn(() => result.predictText);
+                    // Save metadata for later use
+                    localStorage.setItem("textMeta", JSON.stringify({
+                        wordToIndex: result.wordToIndex,
+                        maxLength: result.maxLength,
+                        uniqueLabels: result.uniqueLabels
+                    }));
+                    toast.success("Training complete! You can now download or test the model.");
+                }
             }
-        })
-    }, [params])
+        });
+    }, [params]);
 
 
+
+    const handleTestModel = () => {
+        if (!predictFn) {
+            toast.error("Train the model first!");
+            return;
+        }
+        const prediction = predictFn(testInput);
+
+        setTestingChats(prev => [...prev, {
+            prompt: testInput,
+            response: prediction,
+        }])
+
+        // toast.info(`Prediction: ${prediction.label} (${(prediction.confidence * 100).toFixed(1)}%)`);
+
+
+        console.log(prediction);
+    };
+
+
+    const handleDownload = async () => {
+        if (trainedModel) {
+            await trainedModel?.save('downloads://text-classification-model');
+            toast.success("Model Saved", {
+                description: "Now you can use the model"
+            });
+        } else {
+            toast.error("No trained model available.");
+        }
+    };
 
     return (
-        <div>
+        <div className='space-y-2'>
             <div className="max-w-4xl px-4 mx-auto space-y-2 sm:px-6 lg:px-8 py-8">
                 <Card className="w-full">
                     <CardHeader>
@@ -80,7 +148,9 @@ export default function TrainModel() {
                                 <div className="w-full">
                                     <Label className='mb-2'>Choose Dataset</Label>
                                     <div className='flex justify-between w-full'>
-                                        <Button onClick={handleSelect} className='w-full' variant={'outline'} > {datasetPath ? datasetPath : "Choose Dataset"} </Button>
+                                        <Button onClick={handleSelect} className='w-full' variant={'outline'}>
+                                            {datasetPath || "Choose Dataset"}
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -99,7 +169,6 @@ export default function TrainModel() {
                                             Adjust your training parameters before starting model training.
                                         </SheetDescription>
                                     </SheetHeader>
-
                                     <div className="grid gap-4 px-4">
                                         {/* Training Type */}
                                         <div>
@@ -205,35 +274,115 @@ export default function TrainModel() {
                                     </div>
 
                                     <SheetFooter className='flex flex-row w-full'>
-                                        <Button className='w-1/2' variant='destructive' onClick={() => setParams({
-                                            trainingType: "text-classification",
-                                            epochs: 10,
-                                            batchSize: 32,
-                                            optimizer: "adam",
-                                            learningRate: 0.001,
-                                            dropoutRate: 0.5,
-                                            embeddingDim: 64,
-                                            maxLength: 100
-                                        })}>
+                                        <Button
+                                            className='w-1/2'
+                                            variant='destructive'
+                                            onClick={() => setParams({
+                                                trainingType: "text-classification",
+                                                epochs: 10,
+                                                batchSize: 32,
+                                                optimizer: "adam",
+                                                learningRate: 0.001,
+                                                dropoutRate: 0.5,
+                                                embeddingDim: 64,
+                                                maxLength: 100
+                                            })}
+                                        >
                                             Reset
                                         </Button>
-                                        <Button className='w-1/2' onClick={() => toast.success("Parameters updated!")}>Update</Button>
+                                        <Button className='w-1/2' onClick={() => toast.success("Parameters updated!")}>
+                                            Update
+                                        </Button>
                                     </SheetFooter>
                                 </SheetContent>
                             </Sheet>
                         </div>
                         <div className='flex gap-2'>
-                            {/* <Button>View Dataset</Button> */}
+                            {trainedModel &&
+                                <>
+                                    <Button variant="outline" onClick={() => setTestModel(!testModel)}>Test Model</Button>
+                                    <Button variant="outline" onClick={handleDownload}>Download Model</Button>
+                                </>
+                            }
                             <Button variant="outline" onClick={handleTrainModel}>Train Model</Button>
                         </div>
                     </CardFooter>
                 </Card>
 
-                <div id='train-logger-container' className='space-y-2'>
 
-                </div>
+                {testModel && <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                            <span>Test Model</span>
+                        </CardTitle>
+                    </CardHeader>
 
+                    <CardContent>
+                        <div className='my-2'>
+                            {/* {responseRef.current} */}
+                            {testingChats && testingChats.map((el, i) => (
+                                <div key={i} className='py-1 flex gap-2 flex-col'>
+                                    <div className='flex  justify-end w-full '>
+                                        <Card className=' py-1 w-fit '>
+                                            <CardContent className='py-1'>
+                                                {el.prompt}
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+
+                                    <div className='flex w-full '>
+                                        <Card className='w-fit py-1'>
+                                            <CardContent className='py-1 flex  flex-col'>
+                                                <div className='w-full'>
+                                                    {el.response.label} : ({el.response.confidence})
+                                                </div>
+
+
+                                                <div>
+                                                    <Accordion type="single" collapsible>
+                                                        <AccordionItem value="item-1">
+                                                            <AccordionTrigger>Probabilities</AccordionTrigger>
+                                                            <AccordionContent>
+                                                                <ul className="list-disc [&>li]:mt-2">
+                                                                    {Object.entries(el.response.probabilities).map(([key, value], i) => (
+                                                                        <li key={i} className='space-x-2'>
+                                                                            <span className='capitalize text-secondary-foreground'>{key}</span>
+                                                                            <span>:</span>
+                                                                            <span>{value}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </AccordionContent>
+                                                        </AccordionItem>
+                                                    </Accordion>
+                                                </div>
+
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+
+                                </div>
+                            ))}
+                        </div>
+
+                        {trainedModel && (
+                            <div className="space-y-2">
+                                <div className="flex gap-2">
+
+                                    <TrainedMlPrompt
+                                        chatRef={chatRef}
+                                        input={testInput}
+                                        setInput={setTestInput}
+                                        onSubmit={handleTestModel}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>}
+
+                <div id='train-logger-container' className='space-y-2'></div>
             </div>
         </div>
-    )
+    );
 }

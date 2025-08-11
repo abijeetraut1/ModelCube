@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitlem, CardFooter, CardTitle } from
 import { ArrowLeft, CloudLightning, Download, Cpu, MemoryStick, Settings as settingIcon, Zap, Shuffle, BrainCircuit, FileEdit } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Headers } from "@/app/compnents/Headers/Headers";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import RESET_DEFAULTS from "@/constant/defaultParameters";
@@ -107,8 +106,6 @@ export default function Settings() {
 
     return (
         <div >
-            <Headers />
-
             {/* Main Content */}
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="space-y-4">

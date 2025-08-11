@@ -12,7 +12,6 @@ export const saveChats = async (conversation_id, message) => {
 
     const updatedChats = [...PrevChats, message];
 
-
     // console.log(checkIfTableCreated, updateChatArray)
 
     const msg = await IndexedDB.conversations.update(checkIfTableCreated.conversation_id, {

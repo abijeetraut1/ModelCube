@@ -5,7 +5,6 @@ import {
     TableHeader,
     TableRow
 } from "@/components/ui/table";
-import { Headers } from "@/app/compnents/Headers/Headers";
 import { checkHistoryTitle } from '@/lib/Database/CheckHistory';
 import { deleteConversationById } from '@/lib/Database/CodesDB';
 import { Button } from '@/components/ui/button';
@@ -35,8 +34,6 @@ export default function History() {
 
     return (
         <div>
-            <Headers />
-
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 <Table>
