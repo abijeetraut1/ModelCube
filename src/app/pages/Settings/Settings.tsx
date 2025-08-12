@@ -1,15 +1,11 @@
-// @ts-nocheck
-"use client"
-
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitlem, CardFooter, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, CloudLightning, Download, Cpu, MemoryStick, Settings as settingIcon, Zap, Shuffle, BrainCircuit, FileEdit } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Download, Cpu, MemoryStick, Settings as SettingIcon, Zap, Shuffle, BrainCircuit, FileEdit } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import RESET_DEFAULTS from "@/constant/defaultParameters";
-import axios from "axios";
 import { toast } from "sonner";
 import { fetchSettings, updateSettings } from "@/lib/Database/settings";
 
@@ -306,7 +302,7 @@ export default function Settings() {
                     <Card className="w-full  "  >
                         <CardHeader>
                             <CardTitle className="flex items-center space-x-2">
-                                <settingIcon className="w-5 h-5" />
+                                <SettingIcon className="w-5 h-5" />
                                 <span>Model Precision and Numerical Settings</span>
                             </CardTitle>
                         </CardHeader>

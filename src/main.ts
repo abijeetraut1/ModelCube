@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, globalShortcut } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, globalShortcut, IpcMainInvokeEvent } from 'electron';
 import path from 'path';
 import started from 'electron-squirrel-startup';
 import DownloadManager from "electron-download-manager"
@@ -18,28 +18,29 @@ if (started) {
 }
 
 
-let mainWindow = null;
+let mainWindow: BrowserWindow | null = null;
 const createWindow = () => {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1280,
+    height: 720,
     icon: './assets/icons/appIcon.ico',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
 
+  // mainWindow.maximize();
 
   // overflow hidden for internal slider 
   mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.webContents.insertCSS('html, body { overflow: hidden; }');
+    mainWindow?.webContents.insertCSS('html, body { overflow: hidden; }');
   });
 
 
   // close dev tools
-  mainWindow.webContents.on('devtools-opened', () => {
-    mainWindow.webContents.closeDevTools();
-  });
+  // mainWindow.webContents.on('devtools-opened', () => {
+  //   mainWindow?.webContents.closeDevTools();
+  // });
 
   mainWindow.webContents.on('before-input-event', (event, input) => {
     if (
@@ -63,10 +64,10 @@ const createWindow = () => {
 
   // disable electron reload
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  globalShortcut.register('CommandOrControl+R', () => { });
+  // globalShortcut.register('CommandOrControl+R', () => { });
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  globalShortcut.register('F5', () => { });
+  // globalShortcut.register('F5', () => { });
 
   // Prevent new windows
   mainWindow.webContents.setWindowOpenHandler(() => {
@@ -74,19 +75,19 @@ const createWindow = () => {
   });
 
   // Download handler function using electron downloader
-  mainWindow.webContents.on("will-download", (event, item) => {
+  mainWindow.webContents.on("will-download", (event: unknown, item: unknown) => {
     const downloadFilename = item.getFilename();
     item.setSavePath(`/tmp/${downloadFilename}`);
 
     console.log(downloadFilename)
 
-    mainWindow.webContents.send("download-start", {
+    mainWindow?.webContents.send("download-start", {
       filename: downloadFilename,
       totalBytes: item.getTotalBytes()
     });
 
     item.on('updated', () => {
-      mainWindow.webContents.send("download-progress", {
+      mainWindow?.webContents.send("download-progress", {
         filename: downloadFilename,
         receivedBytes: item.getReceivedBytes(),
         totalBytes: item.getTotalBytes()
@@ -94,7 +95,7 @@ const createWindow = () => {
     });
 
     item.once('done', (_, state) => {
-      mainWindow.webContents.send("download-complete", {
+      mainWindow?.webContents.send("download-complete", {
         filename: downloadFilename,
         state
       });
@@ -102,20 +103,19 @@ const createWindow = () => {
   });
 
 
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 };
 
 // IPC CONNECTIONS
-let chatID = null;
+let chatID: unknown = null;
 const SamplingParameters = {};
 
 // Store active downloads
-const activeDownloads = new Map();
+// const activeDownloads = new Map();
 
-ipcMain.handle("start-download", async (event, { url, filename }) => {
-  console.log('Starting background download:', url);
-
-})
+ipcMain.handle("start-download", async (event: IpcMainInvokeEvent, args: { url: string; filename: string }) => {
+  console.log('Starting background download:', args.url);
+});
 
 ipcMain.once("set-chat-id", async (event, message) => {
   if (!message.chatId) return;
@@ -168,7 +168,7 @@ ipcMain.handle('open-file-dialog', async () => {
 
 
 // train model
-let dataset;
+let dataset: string;
 
 ipcMain.handle('open-file-dialog-dataset', async () => {
   try {
@@ -259,8 +259,8 @@ DownloadManager.register({
   downloadFolder: app.getPath("downloads")
 });
 
-let currentProgress = null;
-let fileName = null;
+let currentProgress: unknown = null;
+let fileName: unknown = null;
 
 ipcMain.on("get-download-url", (event, { filename, downloadUrl }) => {
 
@@ -273,7 +273,7 @@ ipcMain.on("get-download-url", (event, { filename, downloadUrl }) => {
 
   DownloadManager.download({
     url: downloadUrl,
-    onProgress: (progress) => {
+    onProgress: (progress: unknown) => {
 
       // console.log(progress);
       currentProgress = progress; // ✅ Save latest progress

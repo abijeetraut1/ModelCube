@@ -1,6 +1,4 @@
-'use client'
-
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
@@ -18,25 +16,22 @@ interface welcome {
 }
 
 export default function Welcome({ redirect }: welcome) {
-    const [modelPath, setModelPath] = useState<string | null>();
-    const [error, setError] = useState<ErrorState>({ status: null, message: null });
     const navigate = useNavigate();
 
 
     const handleSelect = async () => {
         // @ts-ignore
         try {
-            const connectionResponse = await window.electronAPI.openModelFile();
+            const connectionResponse : unknown = await window.electronAPI.openModelFile();
 
-            console.log("connectionResponse : ", connectionResponse)
-            if (connectionResponse.status == 200) {
+            if (connectionResponse?.status == 200) {
                 const id = uuidv4();
 
                 if (redirect) {
                     navigate("/c/" + id);
                 }
 
-                toast.success(connectionResponse.message, {
+                toast.success(connectionResponse?.message, {
                     duration: 5000
                 });
 
@@ -45,7 +40,7 @@ export default function Welcome({ redirect }: welcome) {
                 toast.error(connectionResponse.message || "Failed to open model file.");
             }
         } catch (error) {
-            console.error("Error selecting model file:", error);
+            // console.error("Error selecting model file:", error);
             toast.error("An unexpected error occurred while selecting the model file.");
         }
     };

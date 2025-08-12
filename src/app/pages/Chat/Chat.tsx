@@ -9,18 +9,20 @@ import { v4 as uuidv4 } from "uuid";
 import Prompt from "@/app/compnents/Prompt/Prompt";
 
 
-export default function Chat({ params }: { params: Promise<{ slug: string }> }) {
+export default function Chat() {
   const [input, setInput] = useState("");
   const navigate = useNavigate()
   const [chatsArray, setChatsArray] = useState([]);
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
-  const [isSocketReady, setIsSocketReady] = useState(false);
   // const socketRef = useRef(null);
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const chatRef = useRef<HTMLTextAreaElement | null>(null);
   const [tempChatStore, setTempChatStore] = useState({ message: "", thinking: "" });
-  const responseChunks = useRef<string | "">({ message: "", thinking: "" });
-  const wordCount = useRef(0);
+  const responseChunks = useRef<{ message: string; thinking: string }>({
+    message: "",
+    thinking: ""
+  });
+
 
   const tempChatStoreRef = useRef(tempChatStore);
   tempChatStoreRef.current = tempChatStore;
@@ -235,7 +237,6 @@ export default function Chat({ params }: { params: Promise<{ slug: string }> }) 
               handleKeyDown={handleKeyDown}
               onSubmit={setChatSlug}
               isWaitingForResponse={isWaitingForResponse}
-              isSocketReady={isSocketReady}
             />
           </div>
         </div>

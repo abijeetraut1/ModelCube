@@ -5,6 +5,15 @@ import { toast } from 'sonner';
 declare global {
     interface Window {
         electronAPI: {
+            onChat(handleChatResponse: (data: any) => Promise<void>): unknown;
+            onChatEnd(handleChatEnd: (data: any) => Promise<void>): unknown;
+            removeChatListener(handleChatResponse: (data: any) => Promise<void>): unknown;
+            removeChatEndListener(handleChatEnd: (data: any) => Promise<void>): unknown;
+            onChatTerminate(): unknown;
+            onChatRestart(): unknown;
+            setPrompt(input: string): unknown;
+            onChatID(arg0: { chatId: string; }): unknown;
+            openModelFile(): unknown;
             startDownload: (url: string, filename: string) => Promise<{ success: boolean }>;
             onDownloadProgress: (callback: (progress: any) => void) => void;
             onDownloadComplete: (callback: (data: any) => void) => void;

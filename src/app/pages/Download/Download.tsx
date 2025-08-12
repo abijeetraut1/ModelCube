@@ -1,37 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useLocation, Link, useFetcher } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+
 import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+    Card, CardContent, CardHeader,
+    CardTitle
+} from "@/components/ui/card";
 import { Download as DownloadIcon } from 'lucide-react';
-import { Progress } from "@/components/ui/progress"
+import { Progress } from "@/components/ui/progress";
 import { fetchDownloads, updateDownload } from '@/lib/Database/Download';
 
 export default function Download() {
-    const location = useLocation();
-    const pathname = location.pathname;
     const [onGoingDownload, setOnGoingDownload] = useState(null);
-    const [progress, setProgress] = useState(0);
-    const [downloadInfo, setDownloadInfo] = useState(null);
     const [prevDownloads, setPrevDownloads] = useState(null);
 
     useEffect(() => {
         // Listen for live progress
-        window.electronAPI.ipcRenderer.on("download-progress", (progress) => {
+        window.electronAPI.ipcRenderer.on("download-progress", (progress: unknown) => {
             console.log(progress)
             updateDownload(progress.filename, progress.progress)
-
-            setProgress(progress.percent);
             setOnGoingDownload(progress);
         });
 
@@ -40,7 +25,6 @@ export default function Download() {
 
         window.electronAPI.ipcRenderer.on("current-download", (progress) => {
             if (progress) {
-                setProgress(progress.percent)
                 setOnGoingDownload(progress);
             }
         });
@@ -66,9 +50,7 @@ export default function Download() {
 
     return (
         <div>
-            {console.log(onGoingDownload, onGoingDownload?.fileName)}
             {(!onGoingDownload || !Array.isArray(prevDownloads)) ? <NoDownload /> :
-
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-2">
                     {onGoingDownload && <Downloads onGoingDownload={onGoingDownload} />}
                     {prevDownloads && <ListDownload downloadList={prevDownloads} />}
@@ -91,7 +73,7 @@ const NoDownload = () => {
 }
 
 
-const Downloads = ({ onGoingDownload }) => {
+const Downloads = ({ onGoingDownload }: { onGoingDownload: unknown }) => {
     // console.log(onGoingDownload);
     return (
         <>

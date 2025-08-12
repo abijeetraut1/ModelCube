@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import {
-    Search as searchIcon, User, FileText, Code, PackageOpen, ImageIcon, Video,
-    Music, Archive, Clock, Eye, Download, HardDrive, Package
+    FileText, Code, PackageOpen, ImageIcon, Video,
+    Music, Archive, Clock, Download, HardDrive, Package
 } from "lucide-react";
 
 import Search_LLMS from "./Huggingface_Models/Search_HF_Models";
@@ -109,7 +108,7 @@ export default function Search() {
                 <div className="space-y-2">
                     <div className="flex w-full space-x-2">
                         <div className="relative w-full">
-                            <searchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                            {/* <searchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" /> */}
                             <Input
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search for anything..."
