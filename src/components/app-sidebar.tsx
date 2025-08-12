@@ -41,12 +41,12 @@ const data = {
   //   },
   // ],
   navSecondary: [
-    {
-      title: "Text Based ML",
-      url: "/ai",
-      icon: TypeIcon as Icon,
-      complete: true
-    },
+    // {
+    //   title: "Text Based ML",
+    //   url: "/ai",
+    //   icon: TypeIcon as Icon,
+    //   complete: true
+    // },
     {
       title: "Home",
       url: "/",

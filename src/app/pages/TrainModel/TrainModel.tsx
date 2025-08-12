@@ -84,6 +84,7 @@ export default function TrainModel() {
     useEffect(() => {
         window.electronAPI.ipcRenderer.on("extract-dataset", async (event, payload) => {
             if (event.status == 200) {
+                console.log(event, payload)
                 const result = await TextClassification(event.data, params);
                 if (result?.model) {
                     setTrainedModel(result.model);

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, globalShortcut } from 'electron';
 import path from 'path';
 import started from 'electron-squirrel-startup';
 import DownloadManager from "electron-download-manager"
@@ -29,6 +29,28 @@ const createWindow = () => {
     },
   });
 
+
+  // overflow hidden for internal slider 
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.insertCSS('html, body { overflow: hidden; }');
+  });
+
+
+  // close dev tools
+  mainWindow.webContents.on('devtools-opened', () => {
+    mainWindow.webContents.closeDevTools();
+  });
+
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (
+      (input.control || input.meta) &&
+      (input.key.toLowerCase() === 'i' || input.key.toLowerCase() === 'shift')
+    ) {
+      event.preventDefault();
+    }
+  });
+
+
   mainWindow.setMenuBarVisibility(false);
 
   // Load the app
@@ -39,12 +61,19 @@ const createWindow = () => {
   }
 
 
+  // disable electron reload
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  globalShortcut.register('CommandOrControl+R', () => { });
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  globalShortcut.register('F5', () => { });
+
   // Prevent new windows
   mainWindow.webContents.setWindowOpenHandler(() => {
     return { action: 'deny' };
   });
 
-  // Your existing download handler
+  // Download handler function using electron downloader
   mainWindow.webContents.on("will-download", (event, item) => {
     const downloadFilename = item.getFilename();
     item.setSavePath(`/tmp/${downloadFilename}`);

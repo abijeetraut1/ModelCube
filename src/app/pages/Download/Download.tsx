@@ -55,6 +55,7 @@ export default function Download() {
         (async () => {
             const downloadList = await fetchDownloads();
             if (downloadList.stauts == 200) {
+                console.log(downloadList.downloads)
                 setPrevDownloads(downloadList.downloads);
             }
         })();
@@ -65,21 +66,26 @@ export default function Download() {
 
     return (
         <div>
+            {console.log(onGoingDownload, onGoingDownload?.fileName)}
+            {(!onGoingDownload || !Array.isArray(prevDownloads)) ? <NoDownload /> :
 
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-2">
-                {onGoingDownload ? <Downloads onGoingDownload={onGoingDownload} /> : <NoDownload />}
-                <ListDownload downloadList={prevDownloads} />
-            </div>
-
-
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-2">
+                    {onGoingDownload && <Downloads onGoingDownload={onGoingDownload} />}
+                    {prevDownloads && <ListDownload downloadList={prevDownloads} />}
+                </div>
+            }
         </div>
+
+
     );
 }
 
 const NoDownload = () => {
     return (
-        <div>
-            No Downloads
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-2">
+            <h1 className="scroll-m-20 text-center tracking-tight text-balance">
+                No Downloads
+            </h1>
         </div>
     )
 }
@@ -134,9 +140,9 @@ const ListDownload = ({ downloadList }) => {
     return (
         <div className='space-y-2'>
             {Array.isArray(downloadList) && downloadList.map((downloads, i) => (
-                <Card className="w-full" key={i}>
+                <Card className="w-full opacity-85 cursor-not-allowed" key={i}>
                     <CardHeader>
-                        <CardTitle>{downloads.id}</CardTitle>
+                        <CardTitle className='text-secondary-foreground/40'>{downloads.id}</CardTitle>
                     </CardHeader>
 
                     <CardContent>

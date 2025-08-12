@@ -18,21 +18,7 @@ import TrainModel from "@/app/pages/TrainModel/TrainModel";
 document.title = "ModelCube"
 
 function AppLayout() {
-    // const location = useLocation();
-    // const isCodeSpace = location.pathname.includes("/code-space");
 
-    // if (isCodeSpace) {
-    //     return (
-    //         <div className="min-h-screen bg-background">
-    //             {/* <TitleBar title="ModelCube - Code Space" /> */}
-    //             <div>
-    //                 <Routes>
-    //                     <Route path="/c/:slug/code-space" element={<CodeSpace />} />
-    //                 </Routes>
-    //             </div>
-    //         </div>
-    //     );
-    // }
 
     // Render layout for all other routes
     return (
@@ -48,19 +34,25 @@ function AppLayout() {
                     }
                 >
                     <AppSidebar variant="inset" />
-                    <SidebarInset className="bg-muted/40">
-                        <SiteHeader />
+                    <SidebarInset className="h-screen bg-muted/40 flex flex-col">
+                        {/* Fixed header */}
+                        <div className="flex-shrink-0">
+                            <SiteHeader />
+                        </div>
 
-                        <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/settings" element={<Settings />} />
-                            <Route path="/history" element={<History />} />
-                            <Route path="/download" element={<Download />} />
-                            <Route path="/search" element={<Search />} />
-                            <Route path="/c/:slug" element={<Chat />} />
-                            <Route path="/ai" element={<TrainModel />} />
-                        </Routes>
+                        {/* Scrollable content */}
+                        <div className="flex-1 overflow-auto designed-scroll-bar">
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/settings" element={<Settings />} />
+                                <Route path="/history" element={<History />} />
+                                <Route path="/download" element={<Download />} />
+                                <Route path="/search" element={<Search />} />
+                                <Route path="/c/:slug" element={<Chat />} />
+                            </Routes>
+                        </div>
                     </SidebarInset>
+
                 </SidebarProvider>
             </div>
         </div>

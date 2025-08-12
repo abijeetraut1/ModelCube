@@ -30,7 +30,6 @@ export function SiteHeader() {
           onClick={prevPage}
           className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
           <span>Previous Page</span>
         </Button>
         {/* <h1 className="text-base font-medium">Documents</h1> */}
