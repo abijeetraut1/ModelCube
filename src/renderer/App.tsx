@@ -21,7 +21,7 @@ function AppLayout() {
 
     // Render layout for all other routes
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen">
             {/* <TitleBar title="ModelCube" /> */}
             <div>
                 <SidebarProvider
@@ -33,14 +33,16 @@ function AppLayout() {
                     }
                 >
                     <AppSidebar variant="inset" />
-                    <SidebarInset className=" bg-muted/40 flex flex-col">
-                        {/* Fixed header */}
-                        {/* <div className="flex-shrink-0">
+                    <SidebarInset>
+                        <div className="bg-muted/60 h-full w-full flex flex-col">
+
+                            {/* Fixed header */}
+                            {/* <div className="flex-shrink-0">
                         </div> */}
                             <SiteHeader />
 
-                        {/* Scrollable content */}
-                        {/* <div className="flex-1 overflow-auto designed-scroll-bar"> */}
+                            {/* Scrollable content */}
+                            {/* <div className="flex-1 overflow-auto designed-scroll-bar"> */}
                             <Routes>
                                 <Route path="/" element={<Home />} />
                                 <Route path="/settings" element={<Settings />} />
@@ -49,7 +51,9 @@ function AppLayout() {
                                 <Route path="/search" element={<Search />} />
                                 <Route path="/c/:slug" element={<Chat />} />
                             </Routes>
-                        {/* </div> */}
+                            {/* </div> */}
+                        </div>
+
                     </SidebarInset>
 
                 </SidebarProvider>

@@ -1,4 +1,4 @@
-import NodeCreator from "../components/components/NodeCreator";
+import NodeCreator from "./components/NodeCreator";
 import ReactDOM from "react-dom/client";
 import React from "react";
 

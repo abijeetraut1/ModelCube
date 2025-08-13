@@ -17,7 +17,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
         // Remove all existing listeners first
         ipcRenderer.removeAllListeners("on-chat");
         ipcRenderer.on("on-chat", (event, data) => {
-            console.log(data);
             callback(data);
         });
     },

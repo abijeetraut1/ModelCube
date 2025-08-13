@@ -11,10 +11,9 @@ export function SiteHeader() {
   const [title, setTitle] = useState('New Chat');
 
   useEffect(() => {
-    console.log(slug);
     (async () => {
 
-      if(!slug) return; 
+      if (!slug) return;
       const chatTitle = await fetchTitle(slug);
       console.log(chatTitle);
       setTitle(chatTitle ? chatTitle : 'New Chat');
@@ -39,13 +38,11 @@ export function SiteHeader() {
           className="mx-2 data-[orientation=vertical]:h-4"
         />
 
-        <Button
-          variant={"ghost"}
-          onClick={prevPage}
-          className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
-        >
+
+        <h4 className="scroll-m-20 text-x font-medium tracking-tight">
           <span>{title}</span>
-        </Button>
+        </h4>
+
         {/* <h1 className="text-base font-medium">Documents</h1> */}
         {/* <div className="ml-auto flex items-center gap-2">
           <Button onClick={() => {

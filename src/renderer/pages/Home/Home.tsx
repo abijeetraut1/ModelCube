@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { fetchNormalChats } from "@/lib/Database/ChatsDB";
-import Welcome from "@/app/compnents/welcome/welcome";
-import Prompt from "@/app/compnents/Prompt/Prompt";
+import Welcome from "@/renderer/compnents/welcome/welcome";
+import Prompt from "@/renderer/compnents/Prompt/Prompt";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 

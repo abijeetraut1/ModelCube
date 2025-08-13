@@ -46,7 +46,7 @@ export const checkHistoryTitle = async () => {
     // console.log(checkIfTableCreated)
     const path = checkIfTableCreated.map((el) => {
         if (!el.conversation_id) return;
-        return { conversation_id: el.conversation_id };
+        return { title: el.title };
     })
     console.log(path)
 

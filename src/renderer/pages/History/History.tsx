@@ -48,7 +48,7 @@ export default function History() {
                         {Array.isArray(prevChats) && prevChats.map((item, i) => (
                             <TableRow key={i} >
                                 <TableCell className="font-medium">{i}</TableCell>
-                                <TableCell className="font-medium">{item.conversation_id}</TableCell>
+                                <TableCell className="font-medium">{item.title}</TableCell>
                                 <TableCell className="font-medium">
                                     <Button variant="link" onClick={() => deleteConversationId(item.conversation_id)}>
                                         Delete
