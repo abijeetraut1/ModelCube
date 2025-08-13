@@ -1,16 +1,18 @@
 import { defaultModelOptions } from "./settings.js";
-import fs from 'fs';
-import path from 'path';
 import { app } from "electron";
 import os from "os";
 
 const isDev = !app.isPackaged;
 
+const sessions = new Map();
 
 let llama = null;
 let model = null;
 let isInitialized = false;
-const sessions = new Map();
+
+
+let chatTitle = null;
+
 let abortController = new AbortController();
 
 let modelPath;
@@ -41,6 +43,7 @@ async function printModelInfo(path) {
 
   model.free(); // clean up
 }
+
 
 
 async function initializeLLM(path) {
@@ -115,6 +118,8 @@ async function initializeLLM(path) {
     if (!initialized) throw lastError || new Error("All initialization attempts failed");
 
     isInitialized = true;
+
+    // initializeTitleModel();
     return {
       status: 200,
       message: "Model Initialized",
@@ -132,9 +137,6 @@ async function initializeLLM(path) {
 
 async function createLLMSession(sessionId) {
   const { LlamaChatSession } = await import("node-llama-cpp");
-
-
-
 
   try {
     if (sessions.has(sessionId)) {
@@ -176,9 +178,13 @@ function restartSession() {
   abortController = new AbortController();
 }
 
+
+
+
 async function chatWithLLM(sessionId, message, SamplingParameters, IPC_event) {
   try {
     const sessionData = sessions.get(sessionId);
+    // console.log(sessionData);
     if (!sessionData) throw new Error(`Session ${sessionId} not found`);
 
     const cacheKey = message.trim().toLowerCase();
@@ -215,8 +221,21 @@ async function chatWithLLM(sessionId, message, SamplingParameters, IPC_event) {
       }
     });
 
+
+    // const newTitle = await
+
+    if (!chatTitle) {
+      chatWithLLMTitle(sessionId, message, IPC_event)
+    }
+
+
     const responseTime = ((Date.now() - startTime) / 1000).toFixed(2);
     console.log(`Generated response in ${responseTime}s`);
+
+    // console.log("chatTitle");
+    // console.log(chatTitle);
+
+    // await chatTitlePromise;
 
     IPC_event.reply("on-chat-end", {
       timeTook: responseTime,
@@ -234,12 +253,105 @@ async function chatWithLLM(sessionId, message, SamplingParameters, IPC_event) {
     sessionData.cacheTimestamps.set(cacheKey, Date.now());
     sessionData.lastUsed = new Date();
 
+
+
+    console.log(sessionData.cache)
+
     return {
       success: true,
       response,
       sessionId,
       cached: false,
       responseTime
+    };
+  } catch (error) {
+    console.error(`Chat failed for ${sessionId}:`, error);
+    return {
+      success: false,
+      error: error.message,
+      sessionId,
+    };
+  }
+}
+
+async function chatWithLLMTitle(sessionId, message, IPC_event) {
+  const { getLlama, LlamaChatSession } = await import("node-llama-cpp");
+
+  try {
+    console.log(`Processing Title message for ${sessionId}`);
+
+    let llama = await getLlama();
+
+    let titleModel = await llama.loadModel({
+      modelPath: modelPath,
+      gpuLayers: 0,
+      nGpuLayers: 0,
+      contextSize: 1000,
+      batchSize: 64,
+      seed: 42,
+      f16Kv: false,
+      logitsAll: false,
+      vocabOnly: false,
+      useMlock: false,
+      embedding: false,
+      useMmap: true,
+      nThreads: 4,
+      lowVram: true,
+      ropeFreqBase: 10000,
+      ropeFreqScale: 1,
+      mulMatQ: true
+    });
+
+    let context = await titleModel.createContext({
+      gpuLayers: 0,
+      nGpuLayers: 0,
+      contextSize: 1000,
+      batchSize: 1,
+      seed: 42,
+      f16Kv: false,
+      logitsAll: false,
+      vocabOnly: false,
+      useMlock: false,
+      embedding: false,
+      useMmap: false,
+      nThreads: 1,
+      lowVram: true,
+      ropeFreqBase: 10000,
+      ropeFreqScale: 1,
+      mulMatQ: false
+    });
+
+    const session = new LlamaChatSession({
+      contextSequence: context.getSequence(),
+    });
+
+    const prompt = `Generate a short, natural-sounding chat title (4-5 words max) based only on this message. Avoid generic words like "title", "start", or "chat". Do not explain, just return the title itself. Message: "${message}"`;
+
+    const response = await session.prompt(prompt, {
+      temperature: 0.1,
+      topP: 0.1,
+    });
+
+    // Clean up immediately after use to prevent any tracking
+    // await context.dispose();
+    context = null;
+
+    // await titleModel.close(); // fully unload the model
+    titleModel = null;
+
+    chatTitle = response;
+
+    IPC_event.reply("on-chat-end", {
+      title: response,
+      message: "set-title",
+      status: 200
+    });
+
+    console.log("Chat Title Response : " + response);
+
+    return {
+      success: true,
+      response,
     };
   } catch (error) {
     console.error(`Chat failed for ${sessionId}:`, error);

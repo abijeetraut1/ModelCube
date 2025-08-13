@@ -9,7 +9,7 @@ const SystemWorkflow = createSlice({
         error: "",
         currentProjectType: "",
         panelView: 'code',
-        slug: ''
+        slug: null
     },
     reducers: {
         setSlug: (state, action) => {

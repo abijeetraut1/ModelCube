@@ -33,14 +33,14 @@ function AppLayout() {
                     }
                 >
                     <AppSidebar variant="inset" />
-                    <SidebarInset className="h-screen bg-muted/40 flex flex-col">
+                    <SidebarInset className=" bg-muted/40 flex flex-col">
                         {/* Fixed header */}
-                        <div className="flex-shrink-0">
+                        {/* <div className="flex-shrink-0">
+                        </div> */}
                             <SiteHeader />
-                        </div>
 
                         {/* Scrollable content */}
-                        <div className="flex-1 overflow-auto designed-scroll-bar">
+                        {/* <div className="flex-1 overflow-auto designed-scroll-bar"> */}
                             <Routes>
                                 <Route path="/" element={<Home />} />
                                 <Route path="/settings" element={<Settings />} />
@@ -49,7 +49,7 @@ function AppLayout() {
                                 <Route path="/search" element={<Search />} />
                                 <Route path="/c/:slug" element={<Chat />} />
                             </Routes>
-                        </div>
+                        {/* </div> */}
                     </SidebarInset>
 
                 </SidebarProvider>

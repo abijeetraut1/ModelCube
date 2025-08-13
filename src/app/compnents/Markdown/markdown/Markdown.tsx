@@ -14,7 +14,7 @@ const ChatModelMarkdown = ({ response, isThinking }) => {
 
     const scrollContainerRef = useRef(null);
 
-    console.log(response);
+    // console.log(response);
 
     // Auto-scroll when typing/thinking
     useEffect(() => {

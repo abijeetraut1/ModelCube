@@ -1,12 +1,26 @@
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useNavigate } from "react-router-dom";
 
-import { Link } from "react-router-dom"
-import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fetchTitle } from "@/lib/Database/ChatsDB";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 export function SiteHeader() {
+  const slug = useSelector(state => state.workflow.slug);
+  const [title, setTitle] = useState('New Chat');
+
+  useEffect(() => {
+    console.log(slug);
+    (async () => {
+
+      if(!slug) return; 
+      const chatTitle = await fetchTitle(slug);
+      console.log(chatTitle);
+      setTitle(chatTitle ? chatTitle : 'New Chat');
+    })();
+  }, [slug]);
+
 
   function prevPage() {
     if (window.history.length > 1) {
@@ -30,7 +44,7 @@ export function SiteHeader() {
           onClick={prevPage}
           className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
         >
-          <span>Previous Page</span>
+          <span>{title}</span>
         </Button>
         {/* <h1 className="text-base font-medium">Documents</h1> */}
         {/* <div className="ml-auto flex items-center gap-2">

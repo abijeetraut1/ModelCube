@@ -5,10 +5,10 @@ export const createDatabase = async (conversation_id) => {
     if (!checkIfTableCreated) {
         await IndexedDB.conversations.add({
             conversation_id: conversation_id, // slug
-            codes: [],
-            conversation: [],
+            // codes: [],
+            // conversation: [],
             chats: [],
-            download: []
+            title: "New Chat"
         });
     }
 }
@@ -32,13 +32,13 @@ export const addChats = async (conversation_id, codeBlocks, path) => {
                     }]
                 }
             ],
-            conversation: [
-                // {
-                //     id: "asdf-asdf-asdf-" + path,
-                //     provider: "user",
-                //     text: "hello world"
-                // }
-            ],
+            // conversation: [
+            // {
+            //     id: "asdf-asdf-asdf-" + path,
+            //     provider: "user",
+            //     text: "hello world"
+            // }
+            // ],
             chats: [
                 // {
                 // id: "asdf-asdf-asdf-asdf",

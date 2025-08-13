@@ -3,13 +3,16 @@ import { MemoizedMarkdown } from "@/app/compnents/Markdown/MemoizedMarkdown";
 import { useNavigate, useParams } from "react-router-dom";
 
 // import { initializeSocket } from "@/lib/Services/socketConnection";
-import { createDatabase } from "@/lib/Database/CodesDB";
-import { fetchNormalChats, saveNormalChats } from "@/lib/Database/ChatsDB";
+import { createDatabase, updateCodes } from "@/lib/Database/CodesDB";
+import { fetchNormalChats, saveNormalChats, updateTitle } from "@/lib/Database/ChatsDB";
 import { v4 as uuidv4 } from "uuid";
 import Prompt from "@/app/compnents/Prompt/Prompt";
+import { useDispatch } from "react-redux";
+import { setSlug } from "@/lib/Redux/Reducers/SystemWorkflow";
 
 
 export default function Chat() {
+  const dispatch = useDispatch();
   const [input, setInput] = useState("");
   const navigate = useNavigate()
   const [chatsArray, setChatsArray] = useState([]);
@@ -26,6 +29,7 @@ export default function Chat() {
 
   const tempChatStoreRef = useRef(tempChatStore);
   tempChatStoreRef.current = tempChatStore;
+
 
   const { slug } = useParams();
 
@@ -65,6 +69,7 @@ export default function Chat() {
         setChatsArray(data || []);
       }
     };
+
 
     fetchData();
   }, [slug]);
@@ -114,36 +119,49 @@ export default function Chat() {
       // wordCount.current += 1;
     };
     const handleChatEnd = async (data: any) => {
-      const remainingChunks = responseChunks.current;
-      const currentState = tempChatStoreRef.current;
+      console.log(data)
 
-      const finalData = {
-        message: currentState.message + remainingChunks.message,
-        thinking: currentState.thinking + remainingChunks.thinking
-      };
+      if (data.message === "set-title") {
+        // updateCodes(slug, );
+        updateTitle(slug, data.title);
 
-      const saveModelResponse = {
-        id: Date.now(),
-        role: "model",
-        message: {
-          think: finalData.thinking,
-          message: finalData.message
-        },
-        completionTime: data.timeTook,
-        finished: data.status === 200 ? true : false,
+        setTimeout(() => {
+          dispatch(setSlug(slug));
+        }, 1000);
+      } else {
+
+        const remainingChunks = responseChunks.current;
+        const currentState = tempChatStoreRef.current;
+
+        const finalData = {
+          message: currentState.message + remainingChunks.message,
+          thinking: currentState.thinking + remainingChunks.thinking
+        };
+
+        const saveModelResponse = {
+          id: Date.now(),
+          role: "model",
+          message: {
+            think: finalData.thinking,
+            message: finalData.message
+          },
+          completionTime: data.timeTook,
+          finished: data.status === 200 ? true : false,
+        }
+
+
+        const saveResponseChat = await saveNormalChats(slug, saveModelResponse);
+        if (saveResponseChat === 1) {
+          setIsWaitingForResponse(false);
+          tempChatStoreRef.current = "";
+          setTempChatStore({ message: "", thinking: "" });
+          responseChunks.current = { message: "", thinking: "" }
+
+          const updatedChats = await fetchNormalChats(slug);
+          setChatsArray(updatedChats || []);
+        }
       }
 
-
-      const saveResponseChat = await saveNormalChats(slug, saveModelResponse);
-      if (saveResponseChat === 1) {
-        setIsWaitingForResponse(false);
-        tempChatStoreRef.current = "";
-        setTempChatStore({ message: "", thinking: "" });
-        responseChunks.current = { message: "", thinking: "" }
-
-        const updatedChats = await fetchNormalChats(slug);
-        setChatsArray(updatedChats || []);
-      }
     }
 
     const terminatechat = () => {

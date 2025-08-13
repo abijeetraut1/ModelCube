@@ -2,59 +2,74 @@ import IndexedDB from "@/config/IndexedDb";
 import { createDatabase } from "./CodesDB";
 
 export const saveChats = async (conversation_id, message) => {
-
-    const checkIfTableCreated = await IndexedDB.conversations.where("conversation_id").equals(conversation_id).first();
-    if (!checkIfTableCreated) {
-        return console.log("Please Wait Till the Generation")
+    const conversation = await IndexedDB.conversations.get(conversation_id);
+    if (!conversation) {
+        return console.log("Please Wait Till the Generation");
     }
 
-    const PrevChats = checkIfTableCreated?.conversation || [];
-
+    const PrevChats = conversation?.chats || [];
     const updatedChats = [...PrevChats, message];
 
-    // console.log(checkIfTableCreated, updateChatArray)
-
-    const msg = await IndexedDB.conversations.update(checkIfTableCreated.conversation_id, {
-        conversation: updatedChats
-    })
+    const msg = await IndexedDB.conversations.update(conversation_id, {
+        chats: updatedChats
+    });
 
     return msg;
 };
 
 export const fetchChats = async (conversation_id) => {
-    const FetchChats = await IndexedDB.conversations.where("conversation_id").equals(conversation_id).first();
-
-    if (!FetchChats) return console.log("Cannot Fetch Previous Chats");
-
-
-    return FetchChats.conversation;
+    const conversation = await IndexedDB.conversations.get(conversation_id);
+    if (!conversation) return console.log("Cannot Fetch Previous Chats");
+    return conversation.chats || [];
 };
 
-export const fetchNormalChats = async (conversation_id) => {
-    const FetchChats = await IndexedDB.conversations.where("conversation_id").equals(conversation_id).first();
-    console.log(FetchChats)
+export const fetchNormalChats = fetchChats;
 
-    if (!FetchChats) return console.log("Cannot Fetch Previous Chats");
-    return FetchChats.chats;
-};
+// export const fetchNormalChats = async (conversation_id) => {
+//     const FetchChats = await IndexedDB.conversations.where("conversation_id").equals(conversation_id).first();
+//     console.log(FetchChats)
+
+//     if (!FetchChats) return console.log("Cannot Fetch Previous Chats");
+//     return FetchChats.chats;
+// };
 
 export const saveNormalChats = async (conversation_id, message) => {
-
-    const checkIfTableCreated = await IndexedDB.conversations.where("conversation_id").equals(conversation_id).first();
-    if (!checkIfTableCreated) {
+    const conversation = await IndexedDB.conversations.get(conversation_id);
+    if (!conversation) {
         await createDatabase(conversation_id);
-
-        // return console.log("Please Wait Till the Generation")
+        return saveNormalChats(conversation_id, message); // retry after creation
     }
 
-    const PrevChats = checkIfTableCreated?.chats || [];
-
+    const PrevChats = conversation.chats || [];
     const updatedChats = [...PrevChats, message];
 
-    const msg = await IndexedDB.conversations.update(conversation_id, {
+    return IndexedDB.conversations.update(conversation_id, {
         chats: updatedChats
-    })
-
-    return msg;
+    });
 };
 
+export const updateTitle = async (conversation_id, title) => {
+    const conversation = await IndexedDB.conversations.get(conversation_id);
+
+    if (!conversation) {
+        await IndexedDB.conversations.add({
+            conversation_id,
+            chats: [],
+            title
+        });
+        return;
+    }
+
+    return IndexedDB.conversations.update(conversation_id, { title });
+};
+
+export const fetchTitle = async (conversation_id) => {
+
+    console.log(conversation_id)
+    const conversation = await IndexedDB.conversations.get(conversation_id);
+    if (!conversation) {
+        console.log("Cannot fetch title - conversation not found");
+        return null;
+    }
+    return conversation.title;
+};
