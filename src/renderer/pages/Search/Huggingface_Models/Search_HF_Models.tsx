@@ -10,7 +10,7 @@ export default async function Search_LLMS(params: Search_LLMS_interface) {
 
 
     try {
-        const listUrl = `https://huggingface.co/api/models?search=${encodeURIComponent(search)}&limit=${limit}`;
+        const listUrl = `https://huggingface.co/api/models?search=${search}&limit=${limit}`;
         const listRes = await axios.get(listUrl);
         const models = listRes.data;
 

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import {
     FileText, Code, PackageOpen, ImageIcon, Video,
-    Music, Archive, Clock, Download, HardDrive, Package
+    Music, Archive, Clock, Download, HardDrive, Package,
+    User,
+    Eye
 } from "lucide-react";
 
 import Search_LLMS from "./Huggingface_Models/Search_HF_Models";
@@ -50,7 +52,7 @@ export default function Search() {
 
     const searchLLM = async (slug: string) => {
         try {
-            const response = await Search_LLMS({ model_name: slug ? slug : search });
+            const response = await Search_LLMS({ model_name: search });
             if (response.message === "Fetch Successfull") {
                 console.log(response);
                 setModels(response.models);
@@ -65,7 +67,6 @@ export default function Search() {
     };
 
     const updateDownloadLink = (slug) => {
-        console.log(slug)
         setSearch(slug);
         searchLLM(slug);
     }
@@ -161,8 +162,8 @@ export default function Search() {
                                         </div>
 
                                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                                            {/* <div className="flex items-center space-x-1"><User className="w-3 h-3" /><span>{model.developer}</span></div> */}
-                                            {/* <div className="flex items-center space-x-1"><Eye className="w-3 h-3" /><span>{model.likes?.toLocaleString?.() || 0}</span></div> */}
+                                            <div className="flex items-center space-x-1"><User className="w-3 h-3" /><span>{model.developer}</span></div>
+                                            <div className="flex items-center space-x-1"><Eye className="w-3 h-3" /><span>{model.likes?.toLocaleString?.() || 0}</span></div>
                                             <div className="flex items-center space-x-1">
                                                 <Clock className="w-3 h-3" />
                                                 <span>{new Date(model.createdAt).toLocaleString("en-US", {

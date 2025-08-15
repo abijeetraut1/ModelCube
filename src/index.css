@@ -1,6 +1,20 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: 'Geist';
+  src: url('./../assets/fonts/Geist-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal; 
+}
+
+
+body {
+  font-family: 'Geist', sans-serif;
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+}
 
 
 @custom-variant dark (&:is(.dark *));

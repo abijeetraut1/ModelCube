@@ -1,12 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
-import { MemoizedMarkdown } from "@/renderer/compnents/Markdown/MemoizedMarkdown";
+import { MemoizedMarkdown } from "@/components/blocks/Markdown/MemoizedMarkdown";
 import { useNavigate, useParams } from "react-router-dom";
 
 // import { initializeSocket } from "@/lib/Services/socketConnection";
 import { createDatabase, updateCodes } from "@/lib/Database/CodesDB";
 import { fetchNormalChats, saveNormalChats, updateTitle } from "@/lib/Database/ChatsDB";
 import { v4 as uuidv4 } from "uuid";
-import Prompt from "@/renderer/compnents/Prompt/Prompt";
+import Prompt from "@/components/blocks/Prompt/Prompt";
 import { useDispatch } from "react-redux";
 import { setSlug } from "@/lib/Redux/Reducers/SystemWorkflow";
 
@@ -170,6 +170,9 @@ export default function Chat() {
 
     window.electronAPI.onChat(handleChatResponse)
     window.electronAPI.onChatEnd(handleChatEnd);
+
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+
 
     return () => {
       window.electronAPI.removeChatListener(handleChatResponse);

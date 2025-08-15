@@ -29,18 +29,17 @@ const createWindow = () => {
     },
   });
 
-  // mainWindow.maximize();
+  mainWindow.maximize();
 
-  // overflow hidden for internal slider 
-  mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow?.webContents.insertCSS('html, body { overflow: hidden; }');
-  });
+  // mainWindow.webContents.on('did-finish-load', () => {
+  //   mainWindow?.webContents.insertCSS('html, body { overflow: hidden; }');
+  // });
 
 
   // close dev tools
-  // mainWindow.webContents.on('devtools-opened', () => {
-  //   mainWindow?.webContents.closeDevTools();
-  // });
+  mainWindow.webContents.on('devtools-opened', () => {
+    mainWindow?.webContents.closeDevTools();
+  });
 
   mainWindow.webContents.on('before-input-event', (event, input) => {
     if (
@@ -64,10 +63,10 @@ const createWindow = () => {
 
   // disable electron reload
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  // globalShortcut.register('CommandOrControl+R', () => { });
+  globalShortcut.register('CommandOrControl+R', () => { });
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  // globalShortcut.register('F5', () => { });
+  globalShortcut.register('F5', () => { });
 
   // Prevent new windows
   mainWindow.webContents.setWindowOpenHandler(() => {
